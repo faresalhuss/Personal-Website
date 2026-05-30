@@ -49,7 +49,8 @@ A personal home — not a portfolio, not a sales funnel. Priorities, in order:
 
 ## 4. Design direction (FINAL, accepted)
 
-- A **dark + acid-lime** recreation of the look/feel of **stevenbartlett.com**.
+- A **bold, high-contrast dark theme** with an acid-lime accent — editorial and
+  punchy.
 - Black canvas (`#000`), acid-lime accent (`#DBFF00`), occasional white "break"
   panels. Bold **condensed display type** — **Anton** (placeholder for the
   licensed **Zuume** face; swap later if licensed).

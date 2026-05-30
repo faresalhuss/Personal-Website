@@ -21,8 +21,8 @@ It is a personal home with a clear newsletter pull. Not a portfolio, not a sales
 - **Vercel Analytics** + Speed Insights
 - **pnpm**, ESLint (with sorted imports), Prettier
 
-> **Design note:** the look is a dark, acid-lime recreation of the feel of
-> stevenbartlett.com. Anton stands in for the licensed Zuume display face.
+> **Design note:** a bold, high-contrast dark theme with an acid-lime accent.
+> Anton stands in for the licensed Zuume display face.
 
 For deeper architecture, conventions, and workflows see
 **[`docs/DEVELOPER_GUIDE.md`](docs/DEVELOPER_GUIDE.md)**.

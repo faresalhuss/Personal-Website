@@ -2,7 +2,6 @@
 
 /* ------------------------------------------------------------------ */
 /* Design tokens — black canvas, acid-lime accent, white break panels. */
-/* (Recreation of the stevenbartlett.com visual language.)             */
 /* ------------------------------------------------------------------ */
 @theme {
   /* Surfaces */
@@ -169,7 +168,7 @@
     display: none;
   }
 
-  /* Hero name: vertical marquee of the wordmark, like SB's text loop. */
+  /* Hero name: vertical marquee that loops the wordmark. */
   @keyframes hero-rise {
     from {
       opacity: 0;
