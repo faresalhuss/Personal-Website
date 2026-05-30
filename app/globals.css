@@ -1,26 +1,325 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* ------------------------------------------------------------------ */
+/* Design tokens — black canvas, acid-lime accent, white break panels. */
+/* (Recreation of the stevenbartlett.com visual language.)             */
+/* ------------------------------------------------------------------ */
+@theme {
+  /* Surfaces */
+  --color-night: #000000; /* primary background */
+  --color-night-soft: #0b0b0b; /* raised cards on black */
+  --color-night-2: #141414; /* hover / inset */
+  --color-paper: #ffffff; /* white "break" sections */
+
+  /* Ink */
+  --color-ink: #ffffff; /* text on black */
+  --color-ink-dim: #a6a6a6; /* muted text on black */
+  --color-ink-faint: #6b6b6b; /* captions on black (AA on #000) */
+  --color-ink-invert: #0a0a0a; /* text on white panels */
+  --color-ink-invert-dim: #565656; /* muted text on white */
+
+  /* Brand */
+  --color-lime: #dbff00; /* primary accent */
+  --color-lime-dim: #b9d600; /* hover */
+  --color-blue: #1863dc; /* secondary accent */
+
+  /* Lines */
+  --color-line: #232323; /* borders on black */
+  --color-line-2: #333333;
+  --color-line-light: #e6e6e6; /* borders on white */
+
+  /* Type */
+  --font-display:
+    var(--font-anton), "Arial Narrow", "Haettenschweiler", sans-serif;
+  --font-sans: var(--font-geist), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+
+  /* Type scale */
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.375rem;
+  --text-2xl: 1.75rem;
+  --text-3xl: 2.25rem;
+  --text-4xl: 3rem;
+  --text-5xl: 4rem;
+  --text-6xl: 5.5rem;
+  --text-7xl: 7rem;
+  --text-8xl: 9rem;
+
+  --radius-card: 10px;
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+@layer base {
+  html {
+    background-color: var(--color-night);
+    scroll-behavior: smooth;
+    scroll-padding-top: 4rem;
+    -webkit-text-size-adjust: 100%;
+  }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  body {
+    background-color: var(--color-night);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-size: var(--text-base);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Display headings: heavy condensed, uppercase, tight. */
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+    font-weight: 400; /* Anton is single-weight heavy */
+    text-transform: uppercase;
+    line-height: 0.92;
+    letter-spacing: 0.01em;
+    text-wrap: balance;
+  }
+
+  ::selection {
+    background-color: var(--color-lime);
+    color: #000;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-lime);
+    outline-offset: 3px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    *,
+    ::before,
+    ::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer components {
+  /* Buttons ------------------------------------------------------- */
+  .btn-lime {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background-color: var(--color-lime);
+    color: #000;
+    font-weight: 600;
+    font-size: var(--text-sm);
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    padding: 0.85rem 1.5rem;
+    border-radius: 999px;
+    transition:
+      transform 0.25s var(--ease-out-soft),
+      background-color 0.25s;
+  }
+  .btn-lime:hover {
+    background-color: #fff;
+    transform: translateY(-2px);
+  }
+
+  .btn-outline {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    border: 1px solid var(--color-line-2);
+    color: var(--color-ink);
+    font-weight: 600;
+    font-size: var(--text-sm);
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    padding: 0.85rem 1.5rem;
+    border-radius: 999px;
+    transition:
+      border-color 0.25s,
+      color 0.25s;
+  }
+  .btn-outline:hover {
+    border-color: var(--color-lime);
+    color: var(--color-lime);
+  }
+
+  /* Small uppercase eyebrow label */
+  .eyebrow {
+    font-size: var(--text-xs);
+    font-weight: 600;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--color-lime);
+  }
+}
+
+@layer utilities {
+  .hide-scrollbar {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Hero name: vertical marquee of the wordmark, like SB's text loop. */
+  @keyframes hero-rise {
+    from {
+      opacity: 0;
+      transform: translateY(0.18em);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  .hero-rise {
+    animation: hero-rise 0.7s var(--ease-out-soft) both;
+  }
+
+  @keyframes marquee-x {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
+    }
+  }
+  .marquee-track {
+    display: flex;
+    width: max-content;
+    animation: marquee-x 40s linear infinite;
+  }
+  .marquee-track-rev {
+    animation-direction: reverse;
+  }
+
+  @keyframes fade-up {
+    from {
+      opacity: 0;
+      transform: translateY(18px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  .animate-fade-up {
+    animation: fade-up 0.6s var(--ease-out-soft) both;
+  }
+
+  /* Staggered scroll reveal for grids (toggled via data-shown by an
+     IntersectionObserver). Collapses under the reduced-motion rule above. */
+  .reveal-item {
+    opacity: 0;
+    transform: translateY(18px);
+    transition:
+      opacity 0.5s var(--ease-out-soft),
+      transform 0.5s var(--ease-out-soft);
+  }
+  .reveal-item[data-shown="true"] {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* Essay prose (rendered MDX) on dark                                  */
+/* ------------------------------------------------------------------ */
+.essay-prose {
+  font-size: var(--text-lg);
+  line-height: 1.8;
+  color: var(--color-ink-dim);
+}
+.essay-prose > * + * {
+  margin-top: 1.4em;
+}
+.essay-prose h2,
+.essay-prose h3 {
+  color: var(--color-ink);
+  scroll-margin-top: 6rem;
+  margin-top: 1.8em;
+  letter-spacing: 0.01em;
+}
+.essay-prose h2 {
+  font-size: var(--text-3xl);
+}
+.essay-prose h3 {
+  font-size: var(--text-2xl);
+}
+.essay-prose a {
+  color: var(--color-lime);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.essay-prose strong {
+  color: var(--color-ink);
+}
+.essay-prose ul,
+.essay-prose ol {
+  padding-left: 1.4em;
+}
+.essay-prose ul {
+  list-style: disc;
+}
+.essay-prose ol {
+  list-style: decimal;
+}
+.essay-prose li + li {
+  margin-top: 0.5em;
+}
+.essay-prose blockquote {
+  border-left: 3px solid var(--color-lime);
+  padding-left: 1.1em;
+  font-family: var(--font-display);
+  text-transform: none;
+  font-size: var(--text-2xl);
+  line-height: 1.2;
+  color: var(--color-ink);
+}
+.essay-prose :not(pre) > code {
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+  background-color: var(--color-night-2);
+  color: var(--color-lime);
+  padding: 0.15em 0.4em;
+  border-radius: 4px;
+}
+.essay-prose pre {
+  margin: 1.6em 0;
+  padding: 1.1rem 1.25rem;
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-card);
+  overflow-x: auto;
+  font-size: var(--text-sm);
+  background-color: var(--color-night-soft) !important;
+}
+.essay-prose hr {
+  border: 0;
+  border-top: 1px solid var(--color-line);
+  margin: 2.4em 0;
+}
+.essay-prose .footnotes {
+  margin-top: 3em;
+  padding-top: 1.5em;
+  border-top: 1px solid var(--color-line);
+  font-size: var(--text-base);
+}
+.heading-anchor {
+  margin-left: 0.4em;
+  color: var(--color-lime);
+  text-decoration: none;
+  opacity: 0;
+}
+.essay-prose h2:hover .heading-anchor,
+.essay-prose h3:hover .heading-anchor,
+.heading-anchor:focus {
+  opacity: 1;
 }

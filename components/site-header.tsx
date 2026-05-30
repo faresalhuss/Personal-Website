@@ -1,0 +1,132 @@
+"use client";
+
+import Link from "next/link";
+import { useEffect, useState } from "react";
+
+import { site } from "@/lib/site";
+
+const navLinks = [
+  { label: "About", href: "/about" },
+  { label: "What I'm building", href: "/#work" },
+  { label: "The journey", href: "/#journey" },
+  { label: "Writing", href: "/#writing" },
+  { label: "Books", href: "/books" },
+  { label: "Newsletter", href: "/#newsletter" },
+];
+
+export function SiteHeader() {
+  const [open, setOpen] = useState(false);
+
+  // Lock body scroll while the menu is open.
+  useEffect(() => {
+    document.body.style.overflow = open ? "hidden" : "";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [open]);
+
+  // Close on Escape.
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") setOpen(false);
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
+  return (
+    <header className="fixed inset-x-0 top-0 z-50">
+      {/* Top scrim so the wordmark stays legible over scrolling content */}
+      <div
+        aria-hidden="true"
+        className={`pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-night via-night/70 to-transparent transition-opacity duration-300 ${
+          open ? "opacity-0" : "opacity-100"
+        }`}
+      />
+      <div className="relative flex items-center justify-between px-5 py-4 sm:px-8 sm:py-5">
+        <Link
+          href="/"
+          onClick={() => setOpen(false)}
+          className="font-display text-xl tracking-wide text-ink uppercase transition-colors hover:text-lime sm:text-2xl"
+        >
+          Fa&rsquo;res Husseini
+        </Link>
+
+        <button
+          type="button"
+          aria-label={open ? "Close menu" : "Open menu"}
+          aria-expanded={open}
+          onClick={() => setOpen((v) => !v)}
+          className="relative z-50 flex h-11 w-11 items-center justify-center rounded-full border border-line-2 text-ink transition-colors hover:border-lime hover:text-lime"
+        >
+          <div className="flex flex-col gap-[5px]">
+            <span
+              className={`h-[2px] w-5 bg-current transition-transform duration-300 ${
+                open ? "translate-y-[7px] rotate-45" : ""
+              }`}
+            />
+            <span
+              className={`h-[2px] w-5 bg-current transition-opacity duration-300 ${
+                open ? "opacity-0" : ""
+              }`}
+            />
+            <span
+              className={`h-[2px] w-5 bg-current transition-transform duration-300 ${
+                open ? "-translate-y-[7px] -rotate-45" : ""
+              }`}
+            />
+          </div>
+        </button>
+      </div>
+
+      {/* Slide-out overlay menu */}
+      <div
+        className={`fixed inset-0 z-40 bg-night transition-opacity duration-300 ${
+          open
+            ? "pointer-events-auto opacity-100"
+            : "pointer-events-none opacity-0"
+        }`}
+      >
+        <nav className="mx-auto flex h-full max-w-5xl flex-col justify-center px-6 sm:px-10">
+          <ul className="space-y-2">
+            {navLinks.map((link, i) => (
+              <li key={link.href}>
+                <Link
+                  href={link.href}
+                  onClick={() => setOpen(false)}
+                  style={{ transitionDelay: open ? `${i * 40 + 80}ms` : "0ms" }}
+                  className={`block font-display text-5xl leading-[1.05] uppercase transition-all duration-500 hover:text-lime sm:text-7xl ${
+                    open
+                      ? "translate-y-0 opacity-100"
+                      : "translate-y-4 opacity-0"
+                  }`}
+                >
+                  {link.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+
+          <div className="mt-12 flex flex-wrap gap-x-8 gap-y-2 text-sm tracking-widest text-ink-dim uppercase">
+            <a
+              href={site.socials.tiktok.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="transition-colors hover:text-lime"
+            >
+              TikTok
+            </a>
+            <a
+              href={site.socials.instagram.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="transition-colors hover:text-lime"
+            >
+              Instagram
+            </a>
+          </div>
+        </nav>
+      </div>
+    </header>
+  );
+}

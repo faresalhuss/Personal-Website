@@ -1,0 +1,46 @@
+---
+title: "An example essay"
+description: "A draft-only example post that exercises the full MDX pipeline: headings, links, code blocks, blockquotes, lists, tables, and footnotes."
+slug: example-essay
+date: "2026-05-20"
+draft: true
+---
+
+This first paragraph answers the implied question of the title right away, in plain language, so a snippet extractor pulls something useful. This file is a draft, so it never appears in the production build. It exists to prove the rendering pipeline works end to end.
+
+## A second-level heading
+
+Body copy with an [inline link](https://fareshusseini.com) and some `inline code`. Lists work too:
+
+- First point, kept short.
+- Second point, also short.
+- Third point with a bit more to say, but not much.
+
+### A third-level heading
+
+Numbered steps render cleanly:
+
+1. Read the file.
+2. Parse the frontmatter.
+3. Render the body.
+
+> A pull quote, set in the display serif. It should feel like a breath in the middle of the page.
+
+A fenced code block, highlighted by Shiki:
+
+```ts
+export function greet(name: string): string {
+  return `Hello, ${name}.`;
+}
+```
+
+A small table:
+
+| Thing     | Status |
+| --------- | ------ |
+| Pipeline  | Works  |
+| Footnotes | Work   |
+
+And a footnote reference.[^1]
+
+[^1]: This is the footnote. It renders at the bottom of the essay.
