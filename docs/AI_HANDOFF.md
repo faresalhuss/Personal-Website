@@ -38,9 +38,13 @@ A personal home — not a portfolio, not a sales funnel. Priorities, in order:
 
 ## 3. Voice & house style (do not violate)
 
-- **Warm, first-person, learner's voice** — never teacher/guru.
-- **No em dashes in SEO/meta descriptions.** Keep them ~150–160 chars.
-- Avoid AI-tells / filler. Write like a thoughtful person.
+- **Warm, first-person, learner's voice.** Frame advice as "here's what I've found
+  works," a builder learning alongside the reader, never a guru.
+- He is **not a guru**, but he may run courses or an education platform later, so
+  don't write "no courses." The accepted phrasing is **"no guru act."**
+- **No em dashes anywhere in the copy** (he flagged them as an AI tell), and watch
+  for other AI-tells / filler. Keep meta descriptions ~150–160 chars. (Exception:
+  the OG/`<title>` template uses " — Fa'res Husseini" site-wide for consistency.)
 - **De-emphasize Atlanta** — in config/JSON-LD, not featured in copy.
 - **No newsletter capture in the hero.**
 - Eyebrow/tagline: "entrepreneur, creator, and writer."
@@ -78,15 +82,15 @@ Also in-repo (not shipped to the browser): **Python** asset generators using
 
 See [`DEVELOPER_GUIDE.md`](DEVELOPER_GUIDE.md) for architecture/conventions and
 [`BRAND_GROWTH_STRATEGY.md`](BRAND_GROWTH_STRATEGY.md) for the growth/positioning plan.
-Key config/data: `lib/site.ts`, `lib/books.ts`, `lib/structured-data.ts`,
-`lib/consent.ts`, `lib/lead-magnet.ts`, `lib/subscribe.ts`.
+Key config/data: `lib/site.ts`, `lib/books.ts`, `lib/quiz.ts`,
+`lib/structured-data.ts`, `lib/consent.ts`, `lib/lead-magnet.ts`, `lib/subscribe.ts`.
 
 ## 6. Current state of the site (routes & features)
 
 - **Homepage** (`app/(home)/`): hero (giant wordmark + a **scroll cue** that fades
-  out on scroll and back in at the top — `_components/scroll-cue.tsx`), intro,
-  ventures, scroll-driven **timeline** (lime fill climbs the rail; lazy-loaded),
-  writing teaser, "weekly note" feature, newsletter section.
+  out on scroll and back in at the top, `_components/scroll-cue.tsx`), intro,
+  ventures, a **quiz CTA** band, scroll-driven **timeline** (lime fill climbs the
+  rail; lazy-loaded), writing teaser, "weekly note" feature, newsletter section.
 - **/about**: long-form bio as a `string[]` in `app/about/page.tsx`.
 - **/books**: curated lists + Amazon affiliate links; single source of truth
   `lib/books.ts`. Cover marquee, stats row, FTC disclosure, currently-reading,
@@ -106,6 +110,21 @@ Key config/data: `lib/site.ts`, `lib/books.ts`, `lib/structured-data.ts`,
   and is bundled into the route via `outputFileTracingIncludes` in `next.config.ts`,
   so it can't be hotlinked. Regenerate the PDF with
   `python3 scripts/build_reading_list_pdf.py`.
+- **/quiz** — segmenting questionnaire that produces a **Momentum Score (0–10, one
+  decimal)** and a tailored multi-section roadmap. Two gating questions route to a
+  track (**Founder / Focus / Operator / Explorer**); each track asks scored maturity
+  questions plus profile questions (goal, biggest hurdle, what they've tried, the
+  last one multi-select). Result assembles from track + tier + goal + hurdle: a
+  roadmap of moves in Fa'res's voice (Founder/Operator anchor on a clear offer via
+  Hormozi's value equation + provable delivery + converting with confidence, with
+  Fa'res's real win/flop aside; Focus anchors on energy/sleep + consistency with his
+  flow-state aside; Operator's leverage move uses AI-first-then-delegation grounded
+  in Dan Martell's Buy Back Your Time), plus a hurdle section, one next move,
+  pitfalls, and resource cards. Contact gate (first name + email required, **phone
+  optional**) unlocks the result and subscribes via Beehiiv. All content + scoring in
+  `lib/quiz.ts`; wizard `app/quiz/_components/quiz.tsx`; action `app/quiz/actions.ts`;
+  homepage CTA `app/(home)/_components/quiz-cta.tsx`. Founder track copy is owner-
+  approved; Focus/Operator/Explorer were drafted from his stated anchors.
 - **/welcome** — post-confirmation page (Beehiiv opt-in redirect URL). `noindex`.
   Confirms the subscription, sets expectations, links to story / reading-list / books
   and the socials.
@@ -150,8 +169,14 @@ Key config/data: `lib/site.ts`, `lib/books.ts`, `lib/structured-data.ts`,
     no keys the code falls back to a local dev stub.
   - **Double opt-in + Smart Nudge are ON** → fake/unconfirmed emails stay "pending"
     and never consume the 2,500 free active-subscriber slots.
-  - Signups are tagged via `utm_source` ("reading-list" for the lead magnet, else
-    "fareshusseini.com"). Opt-in **redirect URL → /welcome**.
+  - Signups are tagged via `utm_source`: `reading-list` (lead magnet), or
+    `quiz-founder` / `quiz-focus` / `quiz-operator` / `quiz-explorer` (quiz), else
+    `fareshusseini.com`. Opt-in **redirect URL → /welcome**.
+  - The quiz also sends Beehiiv **custom fields**: First Name, Phone Number,
+    Momentum Score, Quiz Track, Quiz Tier, Quiz Goal, Quiz Hurdle, Quiz Tried.
+    These must be created in Beehiiv (Settings → Custom Fields) for the data to
+    stick; unknown fields are ignored, so signups never break. `subscribeEmail` in
+    `lib/subscribe.ts` accepts a `customFields` map.
   - **Welcome-email automation is intentionally deferred** (it requires a paid tier);
     fold a welcome into issue #1 or send a manual broadcast. Turn on Beehiiv
     **Recommendations** for free subscriber growth.
@@ -200,6 +225,13 @@ Key config/data: `lib/site.ts`, `lib/books.ts`, `lib/structured-data.ts`,
 ## 11. Backlog / not yet done
 
 - **⚖️ Have a lawyer review `/terms` and `/privacy`.**
+- **Create the quiz Beehiiv custom fields** (First Name, Phone Number, Momentum
+  Score, Quiz Track, Quiz Tier, Quiz Goal, Quiz Hurdle, Quiz Tried) so quiz data is
+  captured. Segmentation by `utm_source` works without this.
+- Have the owner review the **Focus / Operator / Explorer** roadmap wording in
+  `lib/quiz.ts` (Founder is approved). Get a personal win/flop for the Focus aside
+  is done; Operator delegation is researched (Dan Martell), not personal experience.
+- Later: feed segment-relevant content to subscribers based on quiz track/score.
 - Publish the first essay(s) and flip `showWritingNav` to `true` in `lib/site.ts`.
 - Confirm Beehiiv **Recommendations** is enabled (free subscriber growth).
 - When the list grows, reconsider a paid Beehiiv tier for automated welcome emails.
