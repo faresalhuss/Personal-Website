@@ -29,10 +29,19 @@ export const site = {
       handle: "@fareshusseini",
       url: "https://www.instagram.com/fareshusseini",
     },
+    x: {
+      label: "X",
+      handle: "@fareshusseini",
+      url: "https://x.com/fareshusseini",
+    },
   },
   // sameAs links for Person JSON-LD
   get sameAs() {
-    return [this.socials.tiktok.url, this.socials.instagram.url];
+    return [
+      this.socials.tiktok.url,
+      this.socials.instagram.url,
+      this.socials.x.url,
+    ];
   },
   /**
    * Flip to true to expose /writing in the header nav once the first
