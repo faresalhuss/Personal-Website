@@ -12,7 +12,7 @@ export function Newsletter() {
         </h2>
         <p className="mx-auto mt-5 max-w-xl text-lg text-night/80">
           A short email every week about what I&rsquo;m learning building. No
-          course pitch. No filler. Just notes from the actual work.
+          guru act. No fluff. Just notes from the actual work.
         </p>
         <div className="mt-9">
           <NewsletterForm />
