@@ -132,12 +132,23 @@ const REC_ABOUT: Recommendation = {
   href: "/about",
   note: "How I got here and what I'm building.",
 };
+const REC_DELEGATION: Recommendation = {
+  label: "Buying back your time (podcast)",
+  href: "https://www.smartpassiveincome.com/podcasts/spi-743-buying-back-your-time-with-dan-martell/",
+  note: "Dan Martell on delegation, via Smart Passive Income.",
+};
 
 const FOUNDER_ASIDE = `The most expensive lesson I've learned came from a lead I lost that could have changed my business. They were genuinely interested. I talked to them at least ten times, but I let weeks, sometimes months, go by between calls. Several times they'd forgotten who I even was, even though they still wanted what I was offering. The real reason I wasn't persistent was that I wasn't confident in what I was charging for, so I kept hesitating instead of pushing to close.
 
 The opposite situation taught me the other half of it. A client once tried to walk back a price they'd already agreed to, saying the work wasn't worth it. I held firm and we got paid. The only reason I could do that is because I knew we'd actually delivered real value. That part matters more than the holding firm. There's a real difference between a client who genuinely feels let down or misled and one who's just trying to get out of paying what they agreed to. If someone feels scammed or betrayed, take it seriously and look hard at whether you delivered, because sometimes the right move is to make it right. But if you were upfront about the price, you delivered what you promised, and they're acting in bad faith, stand your ground. Holding firm when you didn't actually deliver only guarantees they never come back, and they shouldn't.
 
 So get confident enough in your offer and your pricing that you can follow up without it feeling awkward, and stand behind your number when it counts.`;
+
+const FOCUS_ASIDE = `My biggest struggle has never been motivation. It's the opposite. I get pulled into a flow state where I'm hyper-productive, and I let it wreck the habits I've spent months building. I tell myself I just need to finish this one thing, and then it's 5:30 in the morning. I still fight this. What helps most is an external commitment I can't talk my way out of. I've agreed to walk the dogs and watch an episode with my partner at night, and when that isn't an option I'll book an early workout with a friend so I either sleep on time or embarrass myself the next morning. Those commitments force me to accept that the work isn't going anywhere, and that if I keep my routine, tomorrow brings another good day of focus.
+
+Here's the part that's easy to forget at 2 in the morning. Take two people over a year. One works a steady eight hours a day. The other works eighteen hours once or twice a week. The consistent one wins every time. They sleep better so they make sharper decisions, they train so they have more energy, and they stay healthier so they lose less time to burnout. It sounds obvious, but in the middle of a productive night it is shockingly easy to talk yourself out of your routine and call it hustle. Most of the time you're just setting yourself up to crash.`;
+
+const OPERATOR_WEEK_ASIDE = `I get sidetracked by exciting new ideas constantly. A new angle pops into my head and it feels like business creativity, but a lot of the time it's just procrastination wearing a nicer outfit. What keeps me honest is deciding one clear goal for the week and putting it somewhere I can't miss it. I'm planning to stick mine on a whiteboard above my monitor, so every shiny new idea has to get past that goal before it gets my afternoon.`;
 
 export const tracks: Record<TrackKey, Track> = {
   // ───────────────────────────── FOUNDER ─────────────────────────────────
@@ -419,16 +430,17 @@ export const tracks: Record<TrackKey, Track> = {
     guide: {
       moves: [
         {
-          title: "Protect one real block of deep work",
-          body: "Pick the most important thing you do and give it one protected block a day, ideally early, with your phone in another room. One genuinely focused hour beats a scattered five. Defend that block like a meeting you can't move.",
+          title: "Build the engine first: sleep, food, and movement",
+          body: "Focus is downstream of energy, and energy comes from the boring basics. Consistent sleep and wake times, training your body, and eating in a way that doesn't crash you mid-afternoon build the focus muscle, and none of it requires knowing your big goal yet. One thing that helps me is tying small daily rituals to fixed points in the day, a morning routine and a real wind-down at night, so they anchor everything else. The simplest lever is also the hardest, which is just going to bed on time.",
         },
         {
-          title: "Build the energy that makes focus possible",
-          body: "Focus is downstream of energy, and energy is downstream of the basics. Sleep is the lever most people ignore and the one that changes the most. Protect a consistent sleep window, move your body every day even a little, and eat in a way that doesn't crash you mid-afternoon. You can't out-discipline exhaustion.",
+          title: "Protect a focus window, and aim it at one thing",
+          body: "Once the engine runs, point it. Decide the single most important thing before you sit down, then guard a block for it. What works for me is a set window where I don't take meetings or check email. I check email once in the morning and not again until the afternoon, my phone sits face down and out of reach, and a focus mode only lets true emergencies through. The basics build the focus. This is where you aim it, because a hard-won hour spread across ten things makes you a master of none.",
         },
         {
-          title: "Run a simple system you'll actually keep, and cut the inputs",
-          body: "You don't need a complicated setup. Each week, pick the few outcomes that matter. Each day, pick the one or two things that move them. Then remove what's stealing your attention: turn off notifications, close the open tabs, and say no to commitments that don't fit. Subtraction beats another app.",
+          title: "Win on consistency, not intensity",
+          body: "The person who works steadily beats the person who works in heroic bursts, every time, over a long enough season. Protecting that consistency is the whole game, and it is harder than it sounds.",
+          aside: FOCUS_ASIDE,
         },
       ],
       hurdleSections: {
@@ -437,7 +449,7 @@ export const tracks: Record<TrackKey, Track> = {
         followthrough:
           "If you start things and don't finish, you're probably carrying too much at once. Shrink your active commitments to one or two until finishing feels normal again.",
         energy:
-          "If energy is the problem, start with sleep, not hacks. Hold a consistent sleep window for two weeks and watch how much your focus changes before you tweak anything else.",
+          "If energy is the problem, this is your starting line, not a side quest. Hold consistent sleep and wake times for two weeks, and protect them even when you're in a productive groove. Torching your routine for one big night usually costs you the next three days.",
         distraction:
           "If distraction runs you, design it out instead of relying on willpower. Phone in another room, notifications off, one tab open. Make the distraction harder to reach than the work.",
         system:
@@ -449,7 +461,7 @@ export const tracks: Record<TrackKey, Track> = {
         followthrough:
           "This week: cut your active priorities down to two and finish those before adding anything new.",
         energy:
-          "Tonight: set a consistent sleep and wake time, and hold it for two weeks.",
+          "Tonight: set a consistent sleep and wake time, and add one external commitment (an early workout, a standing plan with someone) that forces you to stop working.",
         distraction:
           "Right now: turn off non-essential notifications and pick where your phone lives during deep work.",
         system:
@@ -465,10 +477,10 @@ export const tracks: Record<TrackKey, Track> = {
           "You want to free up time and headspace, so protecting energy and cutting inputs matter as much as any tactic.",
       },
       pitfalls: [
+        "Letting a productive flow state wreck your sleep and routine, then paying for it all week",
         "Chasing productivity hacks while ignoring sleep and energy",
         "Building an elaborate system you abandon within a week",
-        "Saying yes to everything and calling it ambition",
-        "Measuring busy hours instead of finished work",
+        "Spreading hard-won focus across ten things and finishing none",
         "Trying to fix focus with willpower instead of removing the distraction",
       ],
     },
@@ -578,7 +590,12 @@ export const tracks: Record<TrackKey, Track> = {
         "You operate at a high level on both fronts. The next gains are strategic leverage and protecting your attention for the few things only you can do.",
       ],
     ),
-    recommendations: [REC_BUSINESS_BOOKS, REC_PERSONAL_BOOKS, REC_READING_LIST],
+    recommendations: [
+      REC_BUSINESS_BOOKS,
+      REC_PERSONAL_BOOKS,
+      REC_DELEGATION,
+      REC_READING_LIST,
+    ],
     guide: {
       moves: [
         {
@@ -588,17 +605,18 @@ export const tracks: Record<TrackKey, Track> = {
             "I've lost a deal that could have changed my business by not following up enough and not standing behind my price. I take this part seriously now. Conviction in your offer and your number is what turns interest into revenue.",
         },
         {
-          title: "Protect time for the few things only you can do",
-          body: "As an operator, your scarce resource is attention. Block deep-work time for the highest-leverage work, which is usually offer, sales, and strategy, and get the rest off your plate. Protect that block the way you'd protect a client meeting.",
+          title: "Define a winning week, then protect time for it",
+          body: "As an operator your scarcest resource is attention, and the danger usually isn't laziness, it's drift. Every Sunday I decide what would actually make the week a win for the business, and I check that it lines up with my bigger goals. Then during the week, when a new idea shows up, I hold it against that goal and ask whether it moves me closer or just feels productive. Block deep-work time for the few things that move the week, and protect that block like a client meeting.",
+          aside: OPERATOR_WEEK_ASIDE,
         },
         {
-          title: "Turn what works into systems so it runs without you",
-          body: "Once something works, write it down and hand it off. The goal is a business that doesn't need you in every loop. Systemize delivery and the repeatable parts of marketing and sales so more volume doesn't break you.",
+          title: "Get leverage: AI now, delegation as you grow",
+          body: "Leverage is how operators escape the bottleneck, and it comes in stages. If you don't have a team yet, your fastest leverage is AI. Use it to expand your own output on research, first drafts, admin, and customer replies, so you get more done without more hours. As you grow and can afford help, shift to delegation. The clearest framing I've found is Dan Martell's Buy Back Your Time: work out your buyback rate, which is roughly a quarter of your effective hourly rate, then offload the tasks worth less than that first, starting with the low-value admin that drains you and climbing from there. Record yourself doing a task once, turn it into a simple checklist, and hand it off. Don't systemize something that isn't working yet, and don't wait so long to delegate that you become the ceiling on your own business.",
         },
       ],
       hurdleSections: {
         bottleneck:
-          "If you're the bottleneck, the fix is systems and delegation, not more hours. Pick the one task that eats your week and document or hand it off this month.",
+          "If you're the bottleneck, the answer is leverage, not more hours. With no team yet, lean on AI to expand your own output. When you can afford help, use your buyback rate to decide what to offload first, starting with the low-value admin that drains you, and hand it off with a simple checklist.",
         customers:
           "If customers are short, treat distribution as a system, not a hope. Commit to one channel and make it a repeatable weekly cadence.",
         deeptime:
@@ -610,7 +628,7 @@ export const tracks: Record<TrackKey, Track> = {
       },
       nextActions: {
         bottleneck:
-          "This week: pick the one task that eats your time and document it so someone else can run it.",
+          "This week: list every task you did, mark the low-value ones that drain you, and offload the top one, either to an AI tool or a first hire.",
         customers:
           "This week: commit to one channel and set a repeatable weekly cadence for it.",
         deeptime:
@@ -629,10 +647,10 @@ export const tracks: Record<TrackKey, Track> = {
         time: "You want your time back, so protecting attention and offloading work are the priorities.",
       },
       pitfalls: [
-        "Staying the bottleneck because handing off feels slower at first",
-        "Working in the business so much you never work on it",
+        "Becoming the ceiling on your own business by refusing to let go",
+        "Chasing shiny new ideas that are really procrastination in disguise",
         "A great offer with weak follow-up, losing deals you already earned",
-        "Systemizing nothing, so every week starts from scratch",
+        "Systemizing or delegating something before it actually works",
         "Underpricing while carrying all the risk",
       ],
     },
