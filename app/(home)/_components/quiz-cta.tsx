@@ -19,8 +19,8 @@ export function QuizCta() {
             </h2>
             <p className="mt-5 max-w-xl text-lg text-ink-dim">
               Answer a few honest questions about where you are with business
-              and productivity. Get a score out of 100 and a short, tailored set
-              of next steps.
+              and productivity. Get a score out of 10 and a short, tailored
+              roadmap for your situation.
             </p>
             <Link href="/quiz" className="btn-lime mt-8">
               Take the quiz

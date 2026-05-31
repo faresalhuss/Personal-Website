@@ -22,7 +22,7 @@ const Schema = z.object({
       message: "Please enter a valid phone number, or leave it blank.",
     }),
   track: z.string(),
-  score: z.coerce.number().min(0).max(100),
+  score: z.coerce.number().min(0).max(10),
   tier: z.string().max(80).optional(),
 });
 

@@ -98,9 +98,9 @@ const SHARED_TIERS = (
   b4: string,
 ): Tier[] => [
   { min: 0, name: t1, blurb: b1 },
-  { min: 50, name: t2, blurb: b2 },
-  { min: 70, name: t3, blurb: b3 },
-  { min: 87, name: t4, blurb: b4 },
+  { min: 5, name: t2, blurb: b2 },
+  { min: 7, name: t3, blurb: b3 },
+  { min: 8.5, name: t4, blurb: b4 },
 ];
 
 const REC_READING_LIST: Recommendation = {
@@ -386,14 +386,18 @@ export const tracks: Record<TrackKey, Track> = {
   },
 };
 
-/** Normalize raw points to a 0–100 score (min option = 1pt → floor ~25). */
+/** Normalize raw points to a 0–10 score with one decimal (min option = 1pt,
+ * so scores land ~2.5–10.0, never a demoralizing 0). */
 export function computeScore(track: Track, points: number[]): number {
   const sum = points.reduce((a, b) => a + b, 0);
   const max = track.questions.length * MAX_POINTS;
   if (max === 0) return 0;
-  return Math.round((sum / max) * 100);
+  return Math.round((sum / max) * 100) / 10;
 }
 
 export function tierForScore(track: Track, score: number): Tier {
-  return track.tiers.reduce((best, t) => (score >= t.min ? t : best), track.tiers[0]);
+  return track.tiers.reduce(
+    (best, t) => (score >= t.min ? t : best),
+    track.tiers[0],
+  );
 }

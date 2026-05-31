@@ -87,8 +87,8 @@ export function Quiz() {
         <p className="mt-6 max-w-xl text-lg text-ink-dim">
           Answer a few honest questions about where you are with business and
           productivity. You&rsquo;ll get a {SCORE_NAME}
-          {" "}out of 100 and a short, tailored set of next steps. No fluff, no
-          guru act.
+          {" "}out of 10 and a short, tailored roadmap for your situation. No
+          fluff, no guru act.
         </p>
         <button
           type="button"
@@ -384,10 +384,10 @@ function Result({
       <p className="eyebrow mb-4">Your {SCORE_NAME}</p>
       <div className="flex items-end gap-4">
         <span className="font-display text-7xl leading-none text-lime sm:text-9xl">
-          {score}
+          {score.toFixed(1)}
         </span>
         <span className="mb-2 text-sm tracking-widest text-ink-faint uppercase">
-          / 100
+          / 10
         </span>
       </div>
       <h2 className="mt-5 text-3xl font-medium text-ink normal-case sm:text-4xl">
