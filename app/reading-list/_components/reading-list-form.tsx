@@ -50,7 +50,7 @@ export function ReadingListForm() {
         />
       </div>
 
-      <div className="flex flex-col gap-3 sm:flex-row">
+      <div className="space-y-3">
         <label htmlFor="rl-email" className="sr-only">
           Email address
         </label>
@@ -66,12 +66,12 @@ export function ReadingListForm() {
           aria-describedby={
             state.status === "error" ? "rl-email-error" : undefined
           }
-          className="min-h-[3.25rem] flex-1 rounded-full border border-line-2 bg-night px-5 text-base text-ink placeholder:text-ink-faint focus:border-lime focus:outline-none"
+          className="h-[3.25rem] w-full rounded-full border border-line-2 bg-night px-5 text-base text-ink placeholder:text-ink-faint focus:border-lime focus:outline-none"
         />
         <button
           type="submit"
           disabled={pending}
-          className="btn-lime min-h-[3.25rem] disabled:opacity-70"
+          className="btn-lime h-[3.25rem] w-full justify-center disabled:opacity-70"
         >
           {pending ? "…" : "Send me the list"}
         </button>

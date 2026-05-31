@@ -49,12 +49,12 @@ export default function ReadingListPage() {
         ])}
       />
 
-      <div className="grid gap-12 lg:grid-cols-[1.15fr_1fr] lg:items-center lg:gap-16">
+      <div className="grid gap-12 lg:grid-cols-[1.1fr_1fr] lg:items-start lg:gap-16">
         {/* Left — the pitch */}
         <div>
           <p className="hero-rise eyebrow mb-5">Free guide</p>
           <h1
-            className="hero-rise font-display text-5xl leading-[0.98] text-ink sm:text-7xl"
+            className="hero-rise font-display text-5xl leading-[0.95] text-ink sm:text-6xl"
             style={{ animationDelay: "0.06s" }}
           >
             The 15 books
@@ -96,7 +96,7 @@ export default function ReadingListPage() {
             Get the free PDF
           </p>
           <p className="mt-2 text-sm text-ink-dim">
-            One email, instant download. No spam, unsubscribe anytime.
+            Where should I send it?
           </p>
           <div className="mt-6">
             <ReadingListForm />
