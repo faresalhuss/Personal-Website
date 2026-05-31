@@ -13,14 +13,13 @@ export type QuizState =
 const Schema = z.object({
   firstName: z.string().trim().min(1, "Please add your first name.").max(80),
   email: z.email("That doesn't look like a valid email."),
-  // Lenient: digits/spaces/()+-. Require at least 7 digits.
+  // Optional. If provided, require at least 7 digits (lenient on formatting).
   phone: z
     .string()
     .trim()
-    .min(7, "Please add a valid phone number.")
     .max(30)
-    .refine((v) => (v.match(/\d/g)?.length ?? 0) >= 7, {
-      message: "Please add a valid phone number.",
+    .refine((v) => v === "" || (v.match(/\d/g)?.length ?? 0) >= 7, {
+      message: "Please enter a valid phone number, or leave it blank.",
     }),
   track: z.string(),
   score: z.coerce.number().min(0).max(100),

@@ -292,10 +292,11 @@ function ContactGate({
             id="q-phone"
             name="phone"
             type="tel"
-            label="Phone"
+            label="Phone (optional)"
             autoComplete="tel"
             inputMode="tel"
-            placeholder="Phone number"
+            placeholder="Phone number (optional)"
+            required={false}
           />
         </div>
 
