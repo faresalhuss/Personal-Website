@@ -2,7 +2,7 @@
 
 import { z } from "zod";
 
-import { SCORE_NAME, type TrackKey, tracks } from "@/lib/quiz";
+import { profileLabel, SCORE_NAME, type TrackKey, tracks } from "@/lib/quiz";
 import { subscribeEmail } from "@/lib/subscribe";
 
 export type QuizState =
@@ -24,6 +24,9 @@ const Schema = z.object({
   track: z.string(),
   score: z.coerce.number().min(0).max(10),
   tier: z.string().max(80).optional(),
+  goal: z.string().max(40).optional(),
+  hurdle: z.string().max(40).optional(),
+  tried: z.string().max(200).optional(),
 });
 
 export async function submitQuiz(
@@ -40,6 +43,9 @@ export async function submitQuiz(
     track: formData.get("track"),
     score: formData.get("score"),
     tier: formData.get("tier"),
+    goal: formData.get("goal"),
+    hurdle: formData.get("hurdle"),
+    tried: formData.get("tried"),
   });
 
   if (!parsed.success) {
@@ -49,8 +55,19 @@ export async function submitQuiz(
     };
   }
 
-  const { firstName, email, phone, track, score, tier } = parsed.data;
+  const { firstName, email, phone, track, score, tier, goal, hurdle, tried } =
+    parsed.data;
   const t = tracks[track as TrackKey] ?? tracks.explorer;
+
+  // Map stored option keys to readable labels for Beehiiv.
+  const goalLabel = goal ? profileLabel(t, "goal", goal) : "";
+  const hurdleLabel = hurdle ? profileLabel(t, "hurdle", hurdle) : "";
+  const triedLabel = tried
+    ? tried
+        .split(",")
+        .map((k) => profileLabel(t, "tried", k.trim()))
+        .join(", ")
+    : "";
 
   const result = await subscribeEmail(email, {
     source: t.utmSource,
@@ -60,6 +77,9 @@ export async function submitQuiz(
       [SCORE_NAME]: score,
       "Quiz Track": t.label,
       "Quiz Tier": tier ?? "",
+      "Quiz Goal": goalLabel,
+      "Quiz Hurdle": hurdleLabel,
+      "Quiz Tried": triedLabel,
     },
   });
 
