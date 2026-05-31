@@ -1,5 +1,7 @@
 import { cn } from "@/lib/cn";
 
+import { ScrollCue } from "./scroll-cue";
+
 /**
  * Full-bleed black hero. Giant animated wordmark over a faint scrolling
  * name-marquee (no video/photography needed). CSS-only entrance so the LCP
@@ -65,9 +67,7 @@ export function Hero() {
         </div>
       </div>
 
-      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 text-[0.7rem] tracking-[0.3em] text-ink-faint uppercase">
-        Scroll &darr;
-      </div>
+      <ScrollCue />
     </section>
   );
 }
