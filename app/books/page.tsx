@@ -97,6 +97,28 @@ export default function BooksPage() {
         Associate I earn from qualifying purchases, at no extra cost to you.
       </p>
 
+      {/* Lead magnet CTA */}
+      <a
+        href="/reading-list"
+        className="group mt-10 flex flex-wrap items-center justify-between gap-4 rounded-[var(--radius-card)] border border-lime/30 bg-lime/[0.04] p-6 transition-colors hover:border-lime/60 sm:p-7"
+      >
+        <div>
+          <p className="eyebrow mb-2">Free guide</p>
+          <p className="font-display text-2xl text-ink sm:text-3xl">
+            The 25 books that shaped how I build
+          </p>
+          <p className="mt-1 text-sm text-ink-dim">
+            My most helpful reads, in one PDF. Get it sent to your inbox.
+          </p>
+        </div>
+        <span
+          aria-hidden="true"
+          className="text-3xl text-lime transition-transform duration-300 group-hover:translate-x-1"
+        >
+          &rarr;
+        </span>
+      </a>
+
       {currentlyReading.length > 0 ? (
         <div className="mt-20">
           <h2 className="font-display text-3xl text-lime sm:text-4xl">

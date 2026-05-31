@@ -11,7 +11,10 @@ export type SubscribeResult = { ok: true } | { ok: false; error: string };
 
 const GENERIC_ERROR = "Something went wrong. Try that again in a moment.";
 
-export async function subscribeEmail(raw: unknown): Promise<SubscribeResult> {
+export async function subscribeEmail(
+  raw: unknown,
+  opts: { source?: string } = {},
+): Promise<SubscribeResult> {
   const email = typeof raw === "string" ? raw.trim().toLowerCase() : raw;
   const parsed = EmailSchema.safeParse(email);
 
@@ -23,7 +26,7 @@ export async function subscribeEmail(raw: unknown): Promise<SubscribeResult> {
   const pubId = process.env.BEEHIIV_PUBLICATION_ID;
 
   if (apiKey && pubId) {
-    return subscribeViaBeehiiv(parsed.data, apiKey, pubId);
+    return subscribeViaBeehiiv(parsed.data, apiKey, pubId, opts.source);
   }
 
   // No Beehiiv credentials yet — capture locally so the form is fully
@@ -36,6 +39,7 @@ async function subscribeViaBeehiiv(
   email: string,
   apiKey: string,
   pubId: string,
+  source: string = "fareshusseini.com",
 ): Promise<SubscribeResult> {
   try {
     const res = await fetch(
@@ -50,7 +54,9 @@ async function subscribeViaBeehiiv(
           email,
           reactivate_existing: false,
           send_welcome_email: true,
-          utm_source: "fareshusseini.com",
+          // Tags the signup's origin (e.g. the reading-list lead magnet) so
+          // sources are distinguishable in beehiiv without extra config.
+          utm_source: source,
           referring_site: "fareshusseini.com",
         }),
       },
