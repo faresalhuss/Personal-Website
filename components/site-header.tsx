@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { site } from "@/lib/site";
 
@@ -16,6 +16,14 @@ const navLinks = [
 
 export function SiteHeader() {
   const [open, setOpen] = useState(false);
+  const toggleRef = useRef<HTMLButtonElement>(null);
+
+  // Close the menu and return focus to the toggle so keyboard users aren't
+  // stranded on the body when the menu (and its links) become `inert`.
+  function closeMenu() {
+    setOpen(false);
+    toggleRef.current?.focus();
+  }
 
   // Lock body scroll while the menu is open.
   useEffect(() => {
@@ -25,14 +33,17 @@ export function SiteHeader() {
     };
   }, [open]);
 
-  // Close on Escape.
+  // Close on Escape and restore focus to the toggle.
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
-      if (e.key === "Escape") setOpen(false);
+      if (e.key === "Escape" && open) {
+        setOpen(false);
+        toggleRef.current?.focus();
+      }
     }
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, []);
+  }, [open]);
 
   return (
     <header className="fixed inset-x-0 top-0 z-50">
@@ -53,9 +64,11 @@ export function SiteHeader() {
         </Link>
 
         <button
+          ref={toggleRef}
           type="button"
           aria-label={open ? "Close menu" : "Open menu"}
           aria-expanded={open}
+          aria-controls="primary-menu"
           onClick={() => setOpen((v) => !v)}
           className="relative z-50 flex h-11 w-11 items-center justify-center rounded-full border border-line-2 text-ink transition-colors hover:border-lime hover:text-lime"
         >
@@ -79,21 +92,29 @@ export function SiteHeader() {
         </button>
       </div>
 
-      {/* Slide-out overlay menu */}
+      {/* Slide-out overlay menu. `inert` removes its links from the tab order
+          and the accessibility tree while it's visually hidden, so keyboard
+          users never land on offscreen controls. */}
       <div
+        id="primary-menu"
+        inert={!open}
+        aria-hidden={!open}
         className={`fixed inset-0 z-40 bg-night transition-opacity duration-300 ${
           open
             ? "pointer-events-auto opacity-100"
             : "pointer-events-none opacity-0"
         }`}
       >
-        <nav className="mx-auto flex h-full max-w-5xl flex-col justify-center px-6 sm:px-10">
+        <nav
+          aria-label="Primary"
+          className="mx-auto flex h-full max-w-5xl flex-col justify-center px-6 sm:px-10"
+        >
           <ul className="space-y-2">
             {navLinks.map((link, i) => (
               <li key={link.href}>
                 <Link
                   href={link.href}
-                  onClick={() => setOpen(false)}
+                  onClick={() => closeMenu()}
                   style={{ transitionDelay: open ? `${i * 40 + 80}ms` : "0ms" }}
                   className={`block font-display text-5xl leading-[1.05] uppercase transition-all duration-500 hover:text-lime sm:text-7xl ${
                     open
@@ -107,7 +128,11 @@ export function SiteHeader() {
             ))}
           </ul>
 
-          <div className="mt-12 flex flex-wrap gap-x-8 gap-y-2 text-sm tracking-widest text-ink-dim uppercase">
+          <div
+            aria-label="Social media"
+            role="group"
+            className="mt-12 flex flex-wrap gap-x-8 gap-y-2 text-sm tracking-widest text-ink-dim uppercase"
+          >
             <a
               href={site.socials.tiktok.url}
               target="_blank"

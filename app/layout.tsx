@@ -1,10 +1,10 @@
 import "./globals.css";
 
-import { Analytics } from "@vercel/analytics/next";
-import { SpeedInsights } from "@vercel/speed-insights/next";
 import type { Metadata, Viewport } from "next";
 import { Anton, Geist, Geist_Mono } from "next/font/google";
 
+import { ConsentScripts } from "@/components/consent-scripts";
+import { CookieConsent } from "@/components/cookie-consent";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { site } from "@/lib/site";
@@ -37,8 +37,21 @@ export const metadata: Metadata = {
   },
   description: site.description,
   applicationName: site.name,
+  keywords: [
+    "Fa'res Husseini",
+    "Fares Husseini",
+    "Clicks & Clients",
+    "Animedic",
+    "entrepreneur",
+    "marketing",
+    "small business",
+    "newsletter",
+    "Atlanta",
+  ],
   authors: [{ name: site.author.name, url: site.url }],
   creator: site.author.name,
+  publisher: site.author.name,
+  category: "Business",
   alternates: {
     canonical: "/",
     types: {
@@ -52,20 +65,28 @@ export const metadata: Metadata = {
     locale: site.locale,
     url: site.url,
     siteName: site.name,
-    title: site.name,
+    title: `${site.name} — entrepreneur, creator & writer`,
     description: site.description,
     images: [{ url: "/api/og", width: 1200, height: 630, alt: site.name }],
   },
   twitter: {
     card: "summary_large_image",
-    title: site.name,
+    site: site.socials.x.handle,
+    creator: site.socials.x.handle,
+    title: `${site.name} — entrepreneur, creator & writer`,
     description: site.description,
     images: ["/api/og"],
   },
   robots: {
     index: true,
     follow: true,
-    googleBot: { index: true, follow: true, "max-image-preview": "large" },
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+      "max-video-preview": -1,
+    },
   },
 };
 
@@ -94,8 +115,8 @@ export default function RootLayout({
           {children}
         </main>
         <SiteFooter />
-        <Analytics />
-        <SpeedInsights />
+        <CookieConsent />
+        <ConsentScripts />
       </body>
     </html>
   );

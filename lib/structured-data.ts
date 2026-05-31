@@ -3,6 +3,35 @@ import { site } from "@/lib/site";
 
 const PERSON_ID = `${site.url}/#person`;
 const WEBSITE_ID = `${site.url}/#website`;
+const CLICKS_CLIENTS_ID = "https://clicksclients.com/#organization";
+const ANIMEDIC_ID = `${site.url}/#animedic`;
+
+/** Clicks & Clients — the marketing firm Fa'res founded. */
+function clicksClientsSchema(): Record<string, unknown> {
+  return {
+    "@type": "Organization",
+    "@id": CLICKS_CLIENTS_ID,
+    name: "Clicks & Clients",
+    url: "https://clicksclients.com",
+    description:
+      "Marketing firm founded by Fa'res Husseini in 2025, helping small businesses grow.",
+    founder: { "@id": PERSON_ID },
+    foundingDate: "2025-08",
+  };
+}
+
+/** Animedic — the pet-health startup Fa'res co-founded. */
+function animedicSchema(): Record<string, unknown> {
+  return {
+    "@type": "Organization",
+    "@id": ANIMEDIC_ID,
+    name: "Animedic",
+    description:
+      "Pet health app and practice tool for veterinarians, co-founded by Fa'res Husseini in 2026.",
+    founder: { "@id": PERSON_ID },
+    foundingDate: "2026-03",
+  };
+}
 
 /** The canonical Person node. Referenced by @id elsewhere to avoid duplication. */
 export function personSchema(): Record<string, unknown> {
@@ -11,29 +40,39 @@ export function personSchema(): Record<string, unknown> {
     "@type": "Person",
     "@id": PERSON_ID,
     name: site.author.name,
+    givenName: site.author.firstName,
+    familyName: "Husseini",
     url: site.url,
+    mainEntityOfPage: `${site.url}/about`,
     image: `${site.url}/fares-portrait.jpg`,
     description:
       "Fa'res Husseini is an entrepreneur, creator, and writer building small businesses, including the marketing firm Clicks & Clients and the pet-health startup Animedic.",
     jobTitle: "Entrepreneur, creator, and writer",
+    homeLocation: {
+      "@type": "Place",
+      name: site.author.location,
+      address: {
+        "@type": "PostalAddress",
+        addressLocality: "Atlanta",
+        addressRegion: "GA",
+        addressCountry: "US",
+      },
+    },
     knowsAbout: [
       "Marketing",
+      "Digital marketing",
       "Entrepreneurship",
       "Small business",
-      "Building startups",
+      "Startups",
+      "Building a business from zero",
     ],
+    knowsLanguage: ["en", "ar"],
     alumniOf: {
       "@type": "CollegeOrUniversity",
       name: "San Diego State University",
     },
-    worksFor: [
-      {
-        "@type": "Organization",
-        name: "Clicks & Clients",
-        url: "https://clicksclients.com",
-      },
-      { "@type": "Organization", name: "Animedic" },
-    ],
+    worksFor: [{ "@id": CLICKS_CLIENTS_ID }, { "@id": ANIMEDIC_ID }],
+    founder: [{ "@id": CLICKS_CLIENTS_ID }, { "@id": ANIMEDIC_ID }],
     sameAs: site.sameAs,
   };
 }
@@ -44,23 +83,68 @@ export function websiteSchema(): Record<string, unknown> {
     "@type": "WebSite",
     "@id": WEBSITE_ID,
     name: site.name,
+    alternateName: "fareshusseini.com",
     url: site.url,
     description: site.description,
     inLanguage: "en-US",
     publisher: { "@id": PERSON_ID },
     author: { "@id": PERSON_ID },
+    copyrightHolder: { "@id": PERSON_ID },
+    about: { "@id": PERSON_ID },
+  };
+}
+
+/**
+ * Single connected @graph for the homepage. Emitting Person, WebSite, and the
+ * organizations together (cross-referenced by @id) gives search and AI engines
+ * one authoritative, de-duplicated entity description for "Fa'res Husseini".
+ */
+export function homeGraphSchema(): Record<string, unknown> {
+  const person = personSchema();
+  const website = websiteSchema();
+  delete person["@context"];
+  delete website["@context"];
+  return {
+    "@context": "https://schema.org",
+    "@graph": [
+      person,
+      website,
+      clicksClientsSchema(),
+      animedicSchema(),
+    ],
   };
 }
 
 /** ProfilePage is the 2026 best practice for an "about me" page. */
 export function profilePageSchema(): Record<string, unknown> {
+  const person = personSchema();
+  delete person["@context"];
   return {
     "@context": "https://schema.org",
     "@type": "ProfilePage",
     url: `${site.url}/about`,
+    name: `About ${site.name}`,
     inLanguage: "en-US",
     isPartOf: { "@id": WEBSITE_ID },
-    mainEntity: personSchema(),
+    mainEntity: person,
+  };
+}
+
+/** FAQPage — answers the questions people (and AI engines) actually ask. */
+export function faqSchema(
+  items: Array<{ question: string; answer: string }>,
+): Record<string, unknown> {
+  return {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: items.map((item) => ({
+      "@type": "Question",
+      name: item.question,
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: item.answer,
+      },
+    })),
   };
 }
 

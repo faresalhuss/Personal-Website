@@ -6,8 +6,8 @@ import { Section } from "@/components/section";
 import { site } from "@/lib/site";
 import {
   breadcrumbSchema,
+  faqSchema,
   profilePageSchema,
-  websiteSchema,
 } from "@/lib/structured-data";
 
 export const metadata: Metadata = {
@@ -41,11 +41,38 @@ const bio: string[] = [
   "Law school is still the plan, probably the fall of 2027. I have a real interest in the legal system and the frameworks behind it, and I'm not going to pretend the path is tidy. It means serious prep, a lot of time, and maybe moving again. Between now and then the goal is to build something that works and document the journey as I go, the wins, the losses, and what I'd do differently, from someone still figuring it out.",
 ];
 
+/**
+ * FAQ answers the questions people and AI answer-engines actually ask about
+ * Fa'res. Keep answers factual and grounded in the bio above.
+ */
+const faqs = [
+  {
+    question: "Who is Fa'res Husseini?",
+    answer:
+      "Fa'res Husseini is an entrepreneur, creator, and writer based in Atlanta, Georgia. He runs the marketing firm Clicks & Clients, co-founded the pet-health startup Animedic, and writes a weekly email about what it takes to build small businesses.",
+  },
+  {
+    question: "What does Fa'res Husseini do?",
+    answer:
+      "He founded Clicks & Clients, a marketing firm that helps small businesses grow, in August 2025. In March 2026 he co-founded Animedic, a pet health app and practice tool for veterinarians, launching in summer 2026. He also writes a weekly newsletter and is starting a podcast called Wondering Out Loud.",
+  },
+  {
+    question: "Where is Fa'res Husseini based?",
+    answer:
+      "He lives in Atlanta, Georgia. He grew up in Saudi Arabia, moved to the United States in 2017, lived in Chico and San Diego, California, and moved to Atlanta in 2025.",
+  },
+  {
+    question: "What did Fa'res Husseini study?",
+    answer:
+      "He earned a bachelor's degree in economics from San Diego State University.",
+  },
+];
+
 export default function AboutPage() {
   return (
     <Section width="wide" className="pt-32 pb-24 sm:pt-40">
-      <JsonLd data={websiteSchema()} />
       <JsonLd data={profilePageSchema()} />
+      <JsonLd data={faqSchema(faqs)} />
       <JsonLd
         data={breadcrumbSchema([
           { name: "Home", url: site.url },
@@ -66,6 +93,25 @@ export default function AboutPage() {
           ))}
         </div>
         <Portrait className="mx-auto w-full max-w-sm lg:sticky lg:top-28 lg:max-w-none" />
+      </div>
+
+      <div className="mt-20 border-t border-line pt-12">
+        <p className="eyebrow mb-4">FAQ</p>
+        <h2 className="font-display text-4xl text-ink sm:text-5xl">
+          Common questions
+        </h2>
+        <dl className="mt-10 divide-y divide-line border-t border-line">
+          {faqs.map((faq) => (
+            <div key={faq.question} className="py-7">
+              <dt className="font-display text-2xl text-ink sm:text-3xl">
+                {faq.question}
+              </dt>
+              <dd className="mt-3 max-w-2xl text-lg leading-relaxed text-ink-dim">
+                {faq.answer}
+              </dd>
+            </div>
+          ))}
+        </dl>
       </div>
     </Section>
   );

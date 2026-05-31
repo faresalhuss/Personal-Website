@@ -1,5 +1,5 @@
 import { JsonLd } from "@/components/json-ld";
-import { personSchema, websiteSchema } from "@/lib/structured-data";
+import { homeGraphSchema } from "@/lib/structured-data";
 
 import { Feature } from "./_components/feature";
 import { Hero } from "./_components/hero";
@@ -12,8 +12,7 @@ import { Writing } from "./_components/writing";
 export default function HomePage() {
   return (
     <>
-      <JsonLd data={websiteSchema()} />
-      <JsonLd data={personSchema()} />
+      <JsonLd data={homeGraphSchema()} />
 
       <Hero />
       <Intro />

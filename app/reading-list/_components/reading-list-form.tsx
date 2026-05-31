@@ -14,7 +14,7 @@ export function ReadingListForm() {
 
   if (state.status === "success") {
     return (
-      <div className="animate-fade-up text-center">
+      <div role="status" className="animate-fade-up text-center">
         <p className="font-display text-3xl text-lime sm:text-4xl">
           Your list is ready.
         </p>
@@ -80,7 +80,7 @@ export function ReadingListForm() {
       {state.status === "error" ? (
         <p
           id="rl-email-error"
-          aria-live="polite"
+          role="alert"
           className="mt-3 text-sm font-medium text-[#ff7a7a]"
         >
           {state.message}

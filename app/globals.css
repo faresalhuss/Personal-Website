@@ -13,7 +13,7 @@
   /* Ink */
   --color-ink: #ffffff; /* text on black */
   --color-ink-dim: #a6a6a6; /* muted text on black */
-  --color-ink-faint: #6b6b6b; /* captions on black (AA on #000) */
+  --color-ink-faint: #8c8c8c; /* captions on black — 6.25:1 on #000, passes WCAG AA */
   --color-ink-invert: #0a0a0a; /* text on white panels */
   --color-ink-invert-dim: #565656; /* muted text on white */
 
@@ -212,6 +212,39 @@
   }
   .animate-fade-up {
     animation: fade-up 0.6s var(--ease-out-soft) both;
+  }
+
+  /* Route-change fade. Re-runs on each navigation via app/template.tsx.
+     Collapses to an instant paint under the reduced-motion rule above, so it
+     never delays LCP for motion-sensitive users. */
+  @keyframes page-in {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  .animate-page-in {
+    animation: page-in 0.4s var(--ease-out-soft) both;
+  }
+
+  /* Cookie consent banner: slide + fade up from the bottom edge. Collapses
+     to an instant appearance under the reduced-motion rule above. */
+  @keyframes consent-in {
+    from {
+      opacity: 0;
+      transform: translateY(24px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  .animate-consent-in {
+    animation: consent-in 0.45s var(--ease-out-soft) both;
   }
 
   /* Staggered scroll reveal for grids (toggled via data-shown by an

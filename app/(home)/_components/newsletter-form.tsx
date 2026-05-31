@@ -15,6 +15,7 @@ export function NewsletterForm() {
   if (state.status === "success") {
     return (
       <div
+        role="status"
         aria-live="polite"
         className="mx-auto max-w-md rounded-full bg-night px-6 py-4 text-base font-medium text-lime"
       >
@@ -69,7 +70,7 @@ export function NewsletterForm() {
       {state.status === "error" ? (
         <p
           id="email-error"
-          aria-live="polite"
+          role="alert"
           className="mt-3 text-sm font-medium text-[#9a1500]"
         >
           {state.message}
