@@ -47,7 +47,7 @@ export default function PrivacyPage() {
           Your privacy matters to me. This Privacy Policy explains what personal
           information I, Fa&rsquo;res Husseini (&ldquo;I,&rdquo; &ldquo;me,&rdquo;
           or &ldquo;my&rdquo;), collect through the website at{" "}
-          <a href="https://www.fareshusseini.com">www.fareshusseini.com</a> (the
+          <a href="https://www.fareshusseini.com">www.fareshusseini.com</a>{" "}(the
           &ldquo;Site&rdquo;), how and why I use it, who I share it with, and the
           choices and rights you have. By using the Site, you agree to the
           practices described here. This policy works alongside the{" "}
@@ -66,27 +66,27 @@ export default function PrivacyPage() {
         <p>I collect the following categories of information:</p>
         <ul>
           <li>
-            <strong>Information you give me.</strong> When you subscribe to the
+            <strong>Information you give me.</strong>{" "}When you subscribe to the
             newsletter (&ldquo;The Weekly Note&rdquo;), I collect your email
             address and any optional name or other details you choose to provide.
             If you contact me directly, I collect whatever information is in your
             message.
           </li>
           <li>
-            <strong>Usage and analytics data.</strong> I collect aggregated,
+            <strong>Usage and analytics data.</strong>{" "}I collect aggregated,
             privacy-friendly information about how visitors use the Site, such as
             pages viewed, referring pages, approximate region, and general device
             and browser type. This helps me understand what is useful and improve
             the Site.
           </li>
           <li>
-            <strong>Device and log data.</strong> When you visit, servers may
+            <strong>Device and log data.</strong>{" "}When you visit, servers may
             automatically record technical information such as your IP address
             (often truncated or anonymized), browser type, operating system, and
             timestamps, as part of normal operation and security.
           </li>
           <li>
-            <strong>Cookies and similar technologies.</strong> See the cookies
+            <strong>Cookies and similar technologies.</strong>{" "}See the cookies
             and analytics section below for details on the limited use of these
             technologies.
           </li>
@@ -119,11 +119,11 @@ export default function PrivacyPage() {
         <p>
           Where the EU or UK General Data Protection Regulation (GDPR) applies, I
           process personal information on these legal bases: your{" "}
-          <strong>consent</strong> (for example, when you subscribe to the
+          <strong>consent</strong>{" "}(for example, when you subscribe to the
           newsletter, which you can withdraw at any time); my{" "}
-          <strong>legitimate interests</strong> in operating, securing, and
+          <strong>legitimate interests</strong>{" "}in operating, securing, and
           improving the Site in a way that does not override your rights; and
-          compliance with a <strong>legal obligation</strong> where required.
+          compliance with a <strong>legal obligation</strong>{" "}where required.
         </p>
 
         <h2>5. Third parties and processors</h2>
@@ -134,7 +134,7 @@ export default function PrivacyPage() {
         </p>
         <ul>
           <li>
-            <strong>Beehiiv</strong> powers the newsletter and processes your
+            <strong>Beehiiv</strong>{" "}powers the newsletter and processes your
             email address and subscription activity. See{" "}
             <a
               href="https://www.beehiiv.com/privacy"
@@ -146,7 +146,7 @@ export default function PrivacyPage() {
             .
           </li>
           <li>
-            <strong>Vercel</strong> hosts the Site and provides privacy-friendly
+            <strong>Vercel</strong>{" "}hosts the Site and provides privacy-friendly
             Vercel Analytics and Speed Insights, which measure traffic and
             performance without using cross-site tracking cookies. See{" "}
             <a
@@ -159,7 +159,7 @@ export default function PrivacyPage() {
             .
           </li>
           <li>
-            <strong>Amazon</strong> may receive information when you click an
+            <strong>Amazon</strong>{" "}may receive information when you click an
             affiliate link and visit Amazon, as described below. See{" "}
             <a
               href="https://www.amazon.com/gp/help/customer/display.html?nodeId=468496"
@@ -171,6 +171,15 @@ export default function PrivacyPage() {
             .
           </li>
         </ul>
+        <p>
+          While I do not sell your personal information, these third-party
+          providers operate their own systems under their own privacy policies
+          and terms, which I do not control. I cannot guarantee how they, or any
+          other platforms I may work with in the future, handle data on their
+          side, including whether they may sell or share it under their own
+          policies. I encourage you to review each provider&rsquo;s privacy
+          policy, linked above, to understand their practices and your choices.
+        </p>
         <p>
           I may also disclose information if required by law, to respond to lawful
           requests, to protect rights, safety, and property, or in connection with
@@ -233,32 +242,32 @@ export default function PrivacyPage() {
         </p>
         <ul>
           <li>
-            <strong>Access</strong> a copy of the information I hold about you;
+            <strong>Access</strong>{" "}a copy of the information I hold about you;
           </li>
           <li>
-            <strong>Correct</strong> information that is inaccurate or incomplete;
+            <strong>Correct</strong>{" "}information that is inaccurate or incomplete;
           </li>
           <li>
-            <strong>Delete</strong> your information (for example, by
+            <strong>Delete</strong>{" "}your information (for example, by
             unsubscribing or by request);
           </li>
           <li>
-            <strong>Object to or restrict</strong> certain processing, and{" "}
-            <strong>withdraw consent</strong> at any time; and
+            <strong>Object to or restrict</strong>{" "}certain processing, and{" "}
+            <strong>withdraw consent</strong>{" "}at any time; and
           </li>
           <li>
-            <strong>Portability</strong> of information you provided, where
+            <strong>Portability</strong>{" "}of information you provided, where
             applicable.
           </li>
         </ul>
         <p>
-          <strong>GDPR (EU and UK).</strong> If you are in the European Economic
+          <strong>GDPR (EU and UK).</strong>{" "}If you are in the European Economic
           Area or the United Kingdom, you have the rights above and may lodge a
           complaint with your local data protection authority. Withdrawing consent
           does not affect processing that already took place.
         </p>
         <p>
-          <strong>CCPA and CPRA (California).</strong> If you are a California
+          <strong>CCPA and CPRA (California).</strong>{" "}If you are a California
           resident, you have the right to know what personal information is
           collected and how it is used and shared, the right to request deletion,
           the right to correct inaccurate information, and the right to opt out of

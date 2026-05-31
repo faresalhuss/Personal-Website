@@ -48,7 +48,7 @@ export default function TermsPage() {
           &ldquo;Terms&rdquo;) are a binding agreement between you and Fa&rsquo;res
           Husseini (&ldquo;Fa&rsquo;res,&rdquo; &ldquo;I,&rdquo; &ldquo;me,&rdquo;
           or &ldquo;my&rdquo;) and govern your access to and use of the website at{" "}
-          <a href="https://www.fareshusseini.com">www.fareshusseini.com</a> and
+          <a href="https://www.fareshusseini.com">www.fareshusseini.com</a>{" "}and
           any related pages, content, newsletters, downloads, and services I make
           available (together, the &ldquo;Site&rdquo;). Please read them
           carefully. They include important limitations on liability, a
@@ -76,7 +76,7 @@ export default function TermsPage() {
           or any other applicable jurisdiction. The Site is not directed to
           children under 13, and I do not knowingly collect personal information
           from children under 13. See the{" "}
-          <Link href="/privacy">Privacy Policy</Link> for details.
+          <Link href="/privacy">Privacy Policy</Link>{" "}for details.
         </p>
 
         <h2>3. Intellectual property and your license to view</h2>
@@ -343,7 +343,7 @@ export default function TermsPage() {
           governed by the U.S. Federal Arbitration Act.
         </p>
         <p>
-          <strong>Class-action waiver.</strong> You and I agree that each may
+          <strong>Class-action waiver.</strong>{" "}You and I agree that each may
           bring claims against the other only in an individual capacity, and not
           as a plaintiff or class member in any purported class, collective, or
           representative proceeding. The arbitrator may not consolidate more than
@@ -351,7 +351,7 @@ export default function TermsPage() {
           proceeding.
         </p>
         <p>
-          <strong>Your right to opt out.</strong> You may opt out of this
+          <strong>Your right to opt out.</strong>{" "}You may opt out of this
           arbitration and class-action waiver section by sending me written notice
           within 30 days of first accepting these Terms, using the contact details
           below and stating your name and your intent to opt out. If you opt out,
