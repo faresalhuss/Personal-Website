@@ -27,6 +27,13 @@ def font(px):
     return ImageFont.truetype(ANTON, px)
 
 
+def draw_centered(d, cx, cy, text, fnt, fill):
+    """Center text on its actual glyph ink box (not font line metrics)."""
+    x0, y0, x1, y1 = d.textbbox((0, 0), text, font=fnt)
+    w, h = x1 - x0, y1 - y0
+    d.text((cx - w / 2 - x0, cy - h / 2 - y0), text, font=fnt, fill=fill)
+
+
 # ---------- 800x800 logos ----------
 
 def logo(name, bg, fg, rounded=False, ring=False):
@@ -45,9 +52,7 @@ def logo(name, bg, fg, rounded=False, ring=False):
             radius=radius - 60 if rounded else 90,
             outline=fg, width=14,
         )
-    f = font(430)
-    # optical centering: nudge up slightly (Anton sits low)
-    d.text((s / 2, s / 2 - 26), "FH", font=f, fill=fg, anchor="mm")
+    draw_centered(d, s / 2, s / 2, "FH", font(430), fg)
     img.save(os.path.join(OUT, name))
 
 
@@ -55,8 +60,7 @@ def logo(name, bg, fg, rounded=False, ring=False):
 
 def chip(d, x, y, box, bg, fg):
     d.rounded_rectangle([x, y, x + box, y + box], radius=26, fill=bg)
-    d.text((x + box / 2, y + box / 2 - 6), "FH", font=font(64), fill=fg,
-           anchor="mm")
+    draw_centered(d, x + box / 2, y + box / 2, "FH", font(int(box * 0.5)), fg)
 
 
 def thumb_dark(name):
