@@ -7,19 +7,19 @@ import { breadcrumbSchema, websiteSchema } from "@/lib/structured-data";
 
 import { ReadingListForm } from "./_components/reading-list-form";
 
-const TITLE = "The 25 Books That Shaped How I Build";
+const TITLE = "The 15 Books That Shaped How I Build";
 
 export const metadata: Metadata = {
   title: TITLE,
   description:
-    "A free guide: the 25 books Fa'res Husseini has found most helpful building businesses from zero, with a short note on why each one matters.",
+    "A free guide: the 15 books Fa'res Husseini has found most helpful building businesses from zero, with a short note on why each one matters.",
   alternates: { canonical: "/reading-list" },
   openGraph: {
     type: "website",
     url: "/reading-list",
     title: `${TITLE} — Fa'res Husseini`,
     description:
-      "The 25 books I've found most helpful building businesses from zero. Free PDF.",
+      "The 15 books I've found most helpful building businesses from zero. Free PDF.",
     images: [
       {
         url: "/api/og?eyebrow=Free%20Guide",
@@ -32,7 +32,7 @@ export const metadata: Metadata = {
 };
 
 const inside = [
-  "25 books across business, sales, money, marketing, leadership, and productivity",
+  "15 books across business, sales, money, mindset, and productivity",
   "A one-line take on why each one earned its place",
   "An honest note on how I read (physical vs. digital)",
   "A direct link to every book",
@@ -57,7 +57,7 @@ export default function ReadingListPage() {
             className="hero-rise font-display text-5xl leading-[0.98] text-ink sm:text-7xl"
             style={{ animationDelay: "0.06s" }}
           >
-            The 25 books
+            The 15 books
             <br />
             that shaped
             <br />

@@ -29,7 +29,7 @@ export async function GET() {
 - [About](${site.url}/about): Full first-person story
 - [Writing](${site.url}/writing): Essays
 - [Books](${site.url}/books): Reading lists and recommendations by theme
-- [Reading list (free guide)](${site.url}/reading-list): The 25 books he's found most helpful building businesses, as a free PDF
+- [Reading list (free guide)](${site.url}/reading-list): The 15 books he's found most helpful building businesses, as a free PDF
 
 ## Writing
 ${essayLines}

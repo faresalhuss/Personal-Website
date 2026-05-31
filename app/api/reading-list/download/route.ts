@@ -12,7 +12,7 @@ const PDF_PATH = path.join(
   process.cwd(),
   "assets",
   "lead-magnets",
-  "the-25-books.pdf",
+  "reading-list.pdf",
 );
 
 export async function GET(req: Request) {
@@ -30,7 +30,7 @@ export async function GET(req: Request) {
       headers: {
         "Content-Type": "application/pdf",
         "Content-Disposition":
-          'attachment; filename="the-25-books-fares-husseini.pdf"',
+          'attachment; filename="fares-husseini-reading-list.pdf"',
         "Cache-Control": "private, no-store",
       },
     });

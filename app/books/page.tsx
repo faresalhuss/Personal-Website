@@ -105,7 +105,7 @@ export default function BooksPage() {
         <div>
           <p className="eyebrow mb-2">Free guide</p>
           <p className="font-display text-2xl text-ink sm:text-3xl">
-            The 25 books that shaped how I build
+            The 15 books that shaped how I build
           </p>
           <p className="mt-1 text-sm text-ink-dim">
             My most helpful reads, in one PDF. Get it sent to your inbox.
