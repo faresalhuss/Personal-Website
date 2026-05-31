@@ -11,9 +11,12 @@ export type SubscribeResult = { ok: true } | { ok: false; error: string };
 
 const GENERIC_ERROR = "Something went wrong. Try that again in a moment.";
 
+/** Extra Beehiiv custom fields, e.g. { "First Name": "Sam", "Phone": "..." }. */
+export type CustomFields = Record<string, string | number>;
+
 export async function subscribeEmail(
   raw: unknown,
-  opts: { source?: string } = {},
+  opts: { source?: string; customFields?: CustomFields } = {},
 ): Promise<SubscribeResult> {
   const email = typeof raw === "string" ? raw.trim().toLowerCase() : raw;
   const parsed = EmailSchema.safeParse(email);
@@ -26,7 +29,7 @@ export async function subscribeEmail(
   const pubId = process.env.BEEHIIV_PUBLICATION_ID;
 
   if (apiKey && pubId) {
-    return subscribeViaBeehiiv(parsed.data, apiKey, pubId, opts.source);
+    return subscribeViaBeehiiv(parsed.data, apiKey, pubId, opts);
   }
 
   // No Beehiiv credentials yet — capture locally so the form is fully
@@ -39,8 +42,18 @@ async function subscribeViaBeehiiv(
   email: string,
   apiKey: string,
   pubId: string,
-  source: string = "fareshusseini.com",
+  opts: { source?: string; customFields?: CustomFields } = {},
 ): Promise<SubscribeResult> {
+  const source = opts.source ?? "fareshusseini.com";
+  // Beehiiv expects custom fields as [{ name, value }]. Fields must exist in
+  // the publication (create them in beehiiv settings); unknown fields are
+  // ignored, so this never breaks the signup.
+  const custom_fields = opts.customFields
+    ? Object.entries(opts.customFields)
+        .filter(([, v]) => v !== "" && v != null)
+        .map(([name, value]) => ({ name, value: String(value) }))
+    : undefined;
+
   try {
     const res = await fetch(
       `https://api.beehiiv.com/v2/publications/${pubId}/subscriptions`,
@@ -54,10 +67,12 @@ async function subscribeViaBeehiiv(
           email,
           reactivate_existing: false,
           send_welcome_email: true,
-          // Tags the signup's origin (e.g. the reading-list lead magnet) so
-          // sources are distinguishable in beehiiv without extra config.
+          // Tags the signup's origin (e.g. the reading-list lead magnet or a
+          // quiz track) so segments are distinguishable in beehiiv.
           utm_source: source,
+          utm_medium: source.startsWith("quiz-") ? "quiz" : undefined,
           referring_site: "fareshusseini.com",
+          ...(custom_fields ? { custom_fields } : {}),
         }),
       },
     );

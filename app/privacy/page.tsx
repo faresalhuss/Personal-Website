@@ -69,7 +69,10 @@ export default function PrivacyPage() {
             <strong>Information you give me.</strong>{" "}When you subscribe to the
             newsletter (&ldquo;The Weekly Note&rdquo;), I collect your email
             address and any optional name or other details you choose to provide.
-            If you contact me directly, I collect whatever information is in your
+            If you take a quiz or assessment on the Site, I collect the answers
+            you select along with the <strong>first name, email address, and
+            phone number</strong> you submit to receive your result. If you
+            contact me directly, I collect whatever information is in your
             message.
           </li>
           <li>
@@ -102,6 +105,15 @@ export default function PrivacyPage() {
           <li>
             send the newsletter and confirm your subscription through a double
             opt-in process;
+          </li>
+          <li>
+            calculate and deliver your quiz result, tailor what I send you, and
+            organize subscribers into relevant groups (segments);
+          </li>
+          <li>
+            contact you, including by email and, where you have provided a phone
+            number, occasionally by phone or text message about relevant content
+            or offerings (you can opt out of these at any time);
           </li>
           <li>operate, maintain, secure, and improve the Site;</li>
           <li>

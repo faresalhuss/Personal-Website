@@ -7,6 +7,7 @@ import { Feature } from "./_components/feature";
 import { Hero } from "./_components/hero";
 import { Intro } from "./_components/intro";
 import { Newsletter } from "./_components/newsletter";
+import { QuizCta } from "./_components/quiz-cta";
 import { Ventures } from "./_components/ventures";
 import { Writing } from "./_components/writing";
 
@@ -25,6 +26,7 @@ export default function HomePage() {
       <Hero />
       <Intro />
       <Ventures />
+      <QuizCta />
       <Timeline />
       <Writing />
       <Feature />
