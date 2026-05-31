@@ -34,7 +34,6 @@ export const metadata: Metadata = {
 const inside = [
   "15 books across business, sales, money, mindset, and productivity",
   "A one-line take on why each one earned its place",
-  "An honest note on how I read (physical vs. digital)",
   "A direct link to every book",
 ];
 
