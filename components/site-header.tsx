@@ -149,6 +149,14 @@ export function SiteHeader() {
             >
               Instagram
             </a>
+            <a
+              href={site.socials.x.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="transition-colors hover:text-lime"
+            >
+              X
+            </a>
           </div>
         </nav>
       </div>
