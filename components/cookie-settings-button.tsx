@@ -7,13 +7,13 @@ import { openConsentSettings } from "@/lib/consent";
  * window event the {@link CookieConsent} banner listens for, so no shared
  * provider is needed.
  */
-export function CookieSettingsButton() {
+export function CookieSettingsButton({
+  className = "text-sm text-ink-dim transition-colors hover:text-lime focus-visible:text-lime focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-lime",
+}: {
+  className?: string;
+}) {
   return (
-    <button
-      type="button"
-      onClick={() => openConsentSettings()}
-      className="transition-colors hover:text-lime focus-visible:text-lime focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-lime"
-    >
+    <button type="button" onClick={() => openConsentSettings()} className={className}>
       Cookie settings
     </button>
   );
