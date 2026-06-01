@@ -24,22 +24,25 @@ export type QuizOption = {
   /** 1–4; higher = more momentum/maturity. */
   points: number;
 };
+/** Context passed to every showIf predicate: the chosen gating keys plus the
+ * maturity answers so far (keyed by question id, value = chosen points). */
+export type QuizCtx = {
+  business: string;
+  productivity: string;
+  mat: Record<string, number>;
+};
+
 export type Question = {
   id: string;
   prompt: string;
   options: QuizOption[];
-  /** Only show this question when the predicate passes, given prior maturity
-   * answers keyed by question id (the chosen option's points). Used to skip
-   * questions that don't apply yet, e.g. asking about customers before there's
-   * even an offer. */
-  showIf?: (answers: Record<string, number>) => boolean;
+  /** Only show this question when the predicate passes. Used to skip questions
+   * that don't apply yet (e.g. asking about customers before there's an offer,
+   * or anything operational before the business has launched). */
+  showIf?: (ctx: QuizCtx) => boolean;
 };
 
-/** True once the visitor has at least a rough offer (offer answer >= 2), i.e.
- * they're past "still figuring out what I'm selling." */
-export const hasOffer = (a: Record<string, number>) => (a.offer ?? 0) >= 2;
-
-export type GatingOption = { label: string; yes: boolean };
+export type GatingOption = { label: string; yes: boolean; key: string };
 export type GatingQuestion = {
   id: "business" | "productivity";
   prompt: string;
@@ -52,6 +55,8 @@ export type ProfileQuestion = {
   kind: "single" | "multi";
   prompt: string;
   options: ProfileOption[];
+  /** Optional condition (e.g. show the pre-launch hurdle only for idea-stage). */
+  showIf?: (ctx: QuizCtx) => boolean;
 };
 
 export type Tier = { min: number; name: string; blurb: string };
@@ -85,25 +90,58 @@ export type Track = {
 
 export const MAX_POINTS = 4;
 
+// ── Condition helpers (used by showIf predicates) ───────────────────────────
+/** They run at least one business (vs pre-launch "idea" or "none"). */
+export const isOperating = (ctx: QuizCtx) =>
+  ctx.business === "running" || ctx.business === "multi";
+/** Pre-launch: has an idea but hasn't started. */
+export const isPreLaunch = (ctx: QuizCtx) => ctx.business === "idea";
+/** Past "still figuring out what I'm selling" (offer answer >= 2). */
+export const hasOffer = (ctx: QuizCtx) => (ctx.mat.offer ?? 0) >= 2;
+/** Operational questions (customers, pricing, systems) only apply once the
+ * business is running AND there's at least a rough offer. */
+export const operatingWithOffer = (ctx: QuizCtx) =>
+  isOperating(ctx) && hasOffer(ctx);
+
 export const gatingQuestions: GatingQuestion[] = [
   {
     id: "business",
     prompt: "Where are you with business right now?",
     options: [
-      { label: "Not looking to start or run one", yes: false },
-      { label: "I've got an idea or an itch, but haven't started", yes: true },
-      { label: "I run a business (solo or small team)", yes: true },
-      { label: "I run more than one, it's my main focus", yes: true },
+      { label: "Not looking to start or run one", yes: false, key: "none" },
+      {
+        label: "I've got an idea or an itch, but haven't started",
+        yes: true,
+        key: "idea",
+      },
+      {
+        label: "I run a business (solo or small team)",
+        yes: true,
+        key: "running",
+      },
+      {
+        label: "I run more than one, it's my main focus",
+        yes: true,
+        key: "multi",
+      },
     ],
   },
   {
     id: "productivity",
     prompt: "And how would you describe your productivity?",
     options: [
-      { label: "Honestly, I'm already dialed in", yes: false },
-      { label: "Decent, but inconsistent", yes: true },
-      { label: "I struggle to focus and follow through", yes: true },
-      { label: "It's the bottleneck holding me back", yes: true },
+      { label: "Honestly, I'm already dialed in", yes: false, key: "dialed" },
+      { label: "Decent, but inconsistent", yes: true, key: "inconsistent" },
+      {
+        label: "I struggle to focus and follow through",
+        yes: true,
+        key: "struggling",
+      },
+      {
+        label: "It's the bottleneck holding me back",
+        yes: true,
+        key: "bottleneck",
+      },
     ],
   },
 ];
@@ -190,7 +228,7 @@ export const tracks: Record<TrackKey, Track> = {
           { label: "A repeatable channel or two", points: 3 },
           { label: "A reliable system I can turn up", points: 4 },
         ],
-        showIf: hasOffer,
+        showIf: operatingWithOffer,
       },
       {
         id: "money",
@@ -201,7 +239,7 @@ export const tracks: Record<TrackKey, Track> = {
           { label: "Profitable, with room to optimize", points: 3 },
           { label: "Strong margins and a clear model", points: 4 },
         ],
-        showIf: hasOffer,
+        showIf: operatingWithOffer,
       },
       {
         id: "systems",
@@ -212,7 +250,7 @@ export const tracks: Record<TrackKey, Track> = {
           { label: "Core work is delegated or systemized", points: 3 },
           { label: "It largely runs without me day to day", points: 4 },
         ],
-        showIf: hasOffer,
+        showIf: operatingWithOffer,
       },
       {
         id: "plan",
@@ -241,12 +279,26 @@ export const tracks: Record<TrackKey, Track> = {
         field: "hurdle",
         kind: "single",
         prompt: "What's the biggest thing in your way right now?",
+        showIf: isOperating,
         options: [
           { key: "customers", label: "Not enough customers" },
           { key: "offer", label: "My offer isn't landing" },
           { key: "time", label: "Buried in the day to day, no time" },
           { key: "pricing", label: "Pricing and margins don't work" },
           { key: "focus", label: "Too many directions, no focus" },
+        ],
+      },
+      {
+        field: "hurdle",
+        kind: "single",
+        prompt: "What's holding you back from starting?",
+        showIf: isPreLaunch,
+        options: [
+          { key: "start", label: "I haven't actually started" },
+          { key: "offer", label: "My idea or offer isn't clear yet" },
+          { key: "time", label: "I can't find the time to get going" },
+          { key: "fear", label: "Fear, or not knowing the first step" },
+          { key: "focus", label: "Too many ideas, I can't pick one" },
         ],
       },
       {
@@ -306,6 +358,10 @@ export const tracks: Record<TrackKey, Track> = {
           "Thin margins usually mean you're underpricing out of fear. Raise your price to a number that funds growth, and let your proof justify it. Test the new number on your next three leads.",
         focus:
           "Too many directions is a focus tax. Pick the one bet with the clearest path to revenue and give it 90 days of real attention. The other ideas will still be there.",
+        start:
+          "If you haven't started, that's the whole game right now. Pick the smallest version of your idea you can offer to one real person, and sell it before you build anything else. Starting teaches you more than planning ever will.",
+        fear:
+          "Fear and not knowing the first step are normal, and the cure is a tiny action, not more thinking. Shrink the next step until it feels almost too small to matter, do it today, and let momentum carry the rest.",
       },
       nextActions: {
         customers:
@@ -317,6 +373,10 @@ export const tracks: Record<TrackKey, Track> = {
           "This week: set your new price and quote it to the next lead without flinching.",
         focus:
           "This week: pick your one bet, write down what working looks like in 90 days, and pause the rest.",
+        start:
+          "This week: offer the simplest version of your idea to one real person and ask them to pay or commit.",
+        fear:
+          "Today: write down the single smallest next step, then do just that one thing.",
       },
       goalFraming: {
         income:
@@ -528,7 +588,7 @@ export const tracks: Record<TrackKey, Track> = {
           { label: "A repeatable channel or two", points: 3 },
           { label: "A system I can turn up", points: 4 },
         ],
-        showIf: hasOffer,
+        showIf: operatingWithOffer,
       },
       {
         id: "deep-time",
@@ -549,7 +609,7 @@ export const tracks: Record<TrackKey, Track> = {
           { label: "Core work is systemized", points: 3 },
           { label: "It mostly runs without me", points: 4 },
         ],
-        showIf: hasOffer,
+        showIf: operatingWithOffer,
       },
       {
         id: "follow-through",
@@ -578,12 +638,26 @@ export const tracks: Record<TrackKey, Track> = {
         field: "hurdle",
         kind: "single",
         prompt: "What's the biggest thing in your way right now?",
+        showIf: isOperating,
         options: [
           { key: "bottleneck", label: "I'm the bottleneck" },
           { key: "customers", label: "Not enough customers" },
           { key: "deeptime", label: "No time for deep work" },
           { key: "execution", label: "Inconsistent execution" },
           { key: "pricing", label: "Pricing and margins" },
+        ],
+      },
+      {
+        field: "hurdle",
+        kind: "single",
+        prompt: "What's holding you back from starting?",
+        showIf: isPreLaunch,
+        options: [
+          { key: "start", label: "I haven't actually started" },
+          { key: "offer", label: "My idea or offer isn't clear yet" },
+          { key: "deeptime", label: "No time to actually work on it" },
+          { key: "execution", label: "I start things but don't finish" },
+          { key: "focus", label: "Too many directions, can't pick one" },
         ],
       },
       {
@@ -643,6 +717,12 @@ export const tracks: Record<TrackKey, Track> = {
           "If execution is inconsistent, you're leaning on memory and motivation. Put the recurring work into simple systems so it happens without you deciding each time.",
         pricing:
           "If margins are thin, raise prices to a number that funds growth and back it with the value you deliver.",
+        start:
+          "If you haven't started, stop refining and ship the smallest version. Offer it to one real person this week and let their response, not your planning, tell you what to fix.",
+        offer:
+          "If your offer isn't clear yet, that's the first domino. Sharpen it with the value equation in Move 1 before you worry about systems, time, or customers.",
+        focus:
+          "Too many directions will stall you before you start. Pick the one bet with the clearest path to revenue and give it your protected time for 90 days.",
       },
       nextActions: {
         bottleneck:
@@ -655,6 +735,12 @@ export const tracks: Record<TrackKey, Track> = {
           "This week: turn your most-repeated task into a simple checklist you follow every time.",
         pricing:
           "This week: set a new price that funds growth and quote it to the next lead.",
+        start:
+          "This week: offer the simplest version of your idea to one real person and ask for a commitment.",
+        offer:
+          "This week: write your offer in one sentence using the value equation, then test it on five people.",
+        focus:
+          "This week: pick your one bet, define what winning looks like in 90 days, and pause the rest.",
       },
       goalFraming: {
         grow: "You want to grow without burning out, so leverage and systems matter as much as effort.",

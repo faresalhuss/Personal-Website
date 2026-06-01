@@ -9,6 +9,7 @@ import {
   gatingQuestions,
   type ProfileQuestion,
   type Question,
+  type QuizCtx,
   type QuizOption,
   routeTrack,
   SCORE_NAME,
@@ -36,22 +37,25 @@ const initialState: QuizState = { status: "idle" };
 
 export function Quiz() {
   const [phase, setPhase] = useState<Phase>("intro");
-  const [business, setBusiness] = useState<boolean | null>(null);
-  const [productivity, setProductivity] = useState<boolean | null>(null);
+  const [businessKey, setBusinessKey] = useState<string | null>(null);
+  const [productivityKey, setProductivityKey] = useState<string | null>(null);
   const [gatingStep, setGatingStep] = useState(0); // 0,1 = gating; 2 = track flow
   const [cursor, setCursor] = useState(0); // index into trackItems (raw)
   const [matAnswers, setMatAnswers] = useState<Record<string, number>>({});
   const [profile, setProfile] = useState<ProfileAnswers>({});
   const headingRef = useRef<HTMLHeadingElement>(null);
 
-  const trackKey: TrackKey | null = useMemo(
-    () =>
-      business === null || productivity === null
-        ? null
-        : routeTrack(business, productivity),
-    [business, productivity],
-  );
+  const trackKey: TrackKey | null = useMemo(() => {
+    if (businessKey === null || productivityKey === null) return null;
+    return routeTrack(businessKey !== "none", productivityKey !== "dialed");
+  }, [businessKey, productivityKey]);
   const track = trackKey ? tracks[trackKey] : null;
+
+  const ctx: QuizCtx = {
+    business: businessKey ?? "",
+    productivity: productivityKey ?? "",
+    mat: matAnswers,
+  };
 
   const trackItems: Item[] = useMemo(() => {
     if (!track) return [];
@@ -60,8 +64,8 @@ export function Quiz() {
       kind: "maturity",
       q,
     }));
-    const profileItems: Item[] = track.profile.map((pq) => ({
-      id: pq.field,
+    const profileItems: Item[] = track.profile.map((pq, i) => ({
+      id: `${pq.field}-${i}`,
       kind: pq.kind === "multi" ? "multi" : "single",
       field: pq.field,
       q: pq,
@@ -69,21 +73,20 @@ export function Quiz() {
     return [...maturity, ...profileItems];
   }, [track]);
 
-  const applicable = (item: Item, answers: Record<string, number>) =>
-    item.kind !== "maturity" || !item.q.showIf || item.q.showIf(answers);
+  // A question shows unless its showIf predicate says otherwise.
+  const applicable = (item: Item, c: QuizCtx) =>
+    !item.q.showIf || item.q.showIf(c);
 
-  const applicableCount = trackItems.filter((it) =>
-    applicable(it, matAnswers),
-  ).length;
+  const applicableCount = trackItems.filter((it) => applicable(it, ctx)).length;
   const totalQuestions = 2 + (track ? applicableCount : 8);
 
   useEffect(() => {
     if (phase === "questions") headingRef.current?.focus();
   }, [gatingStep, cursor, phase]);
 
-  function advanceTrack(from: number, answers: Record<string, number>) {
+  function advanceTrack(from: number, c: QuizCtx) {
     for (let i = from + 1; i < trackItems.length; i++) {
-      if (applicable(trackItems[i], answers)) {
+      if (applicable(trackItems[i], c)) {
         setCursor(i);
         return;
       }
@@ -91,26 +94,26 @@ export function Quiz() {
     setPhase("contact");
   }
 
-  function selectGating(which: "business" | "productivity", yes: boolean) {
+  function selectGating(which: "business" | "productivity", key: string) {
     if (which === "business") {
-      setBusiness(yes);
+      setBusinessKey(key);
       setGatingStep(1);
     } else {
-      setProductivity(yes);
+      setProductivityKey(key);
       setGatingStep(2);
-      setCursor(0); // offer/first maturity question is always applicable
+      setCursor(0); // first maturity question (offer) is always applicable
     }
   }
 
   function selectMaturity(item: Item, option: QuizOption) {
     const next = { ...matAnswers, [item.id]: option.points };
     setMatAnswers(next);
-    advanceTrack(cursor, next);
+    advanceTrack(cursor, { ...ctx, mat: next });
   }
 
   function selectProfileSingle(field: "goal" | "hurdle", key: string) {
     setProfile((prev) => ({ ...prev, [field]: key }));
-    advanceTrack(cursor, matAnswers);
+    advanceTrack(cursor, ctx);
   }
 
   function toggleTried(key: string) {
@@ -132,7 +135,7 @@ export function Quiz() {
       return;
     }
     for (let i = cursor - 1; i >= 0; i--) {
-      if (applicable(trackItems[i], matAnswers)) {
+      if (applicable(trackItems[i], ctx)) {
         setCursor(i);
         return;
       }
@@ -142,7 +145,7 @@ export function Quiz() {
 
   // Score from the maturity questions that are currently applicable + answered.
   const applicableMaturity = track
-    ? track.questions.filter((q) => !q.showIf || q.showIf(matAnswers))
+    ? track.questions.filter((q) => !q.showIf || q.showIf(ctx))
     : [];
   const points = applicableMaturity
     .map((q) => matAnswers[q.id])
@@ -204,9 +207,8 @@ export function Quiz() {
         onSuccess={() => setPhase("result")}
         onBack={() => {
           setGatingStep(2);
-          // return to the last applicable item
           for (let i = trackItems.length - 1; i >= 0; i--) {
-            if (applicable(trackItems[i], matAnswers)) {
+            if (applicable(trackItems[i], ctx)) {
               setCursor(i);
               break;
             }
@@ -221,13 +223,10 @@ export function Quiz() {
   const item = !inGating ? trackItems[cursor] : null;
   const gating = gatingQuestions[gatingStep];
 
-  // current position for progress
   const answeredBefore = inGating
     ? gatingStep
     : 2 +
-      trackItems
-        .slice(0, cursor)
-        .filter((it) => applicable(it, matAnswers)).length;
+      trackItems.slice(0, cursor).filter((it) => applicable(it, ctx)).length;
   const progress = Math.min(
     100,
     Math.round((answeredBefore / totalQuestions) * 100),
@@ -275,7 +274,7 @@ export function Quiz() {
                 <OptionButton
                   key={i}
                   label={opt.label}
-                  onClick={() => selectGating(gating.id, opt.yes)}
+                  onClick={() => selectGating(gating.id, opt.key)}
                 />
               ))}
             {!inGating &&
@@ -325,7 +324,7 @@ export function Quiz() {
             </div>
             <button
               type="button"
-              onClick={() => advanceTrack(cursor, matAnswers)}
+              onClick={() => advanceTrack(cursor, ctx)}
               className="btn-lime mt-6"
             >
               Continue
