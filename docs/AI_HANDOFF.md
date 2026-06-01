@@ -5,7 +5,7 @@ session this document plus git access, it should be able to pick up exactly wher
 the last one left off — without re-deriving the project's history, conventions, or
 the owner's preferences.
 
-**Last updated:** 2026-05-31
+**Last updated:** 2026-06-01
 **Maintenance rule:** updated deliberately, not after every prompt. When a change is
 significant enough to matter here (new feature/route, changed design direction, new
 convention, deploy/infra change, a preference learned), **ask the owner whether to
@@ -73,7 +73,8 @@ tokens) · **Motion** (`motion/react`, used ONLY by the homepage timeline, and i
 code-split via `next/dynamic` so it stays off the critical path) · next/font (Anton +
 Geist + Geist Mono) · MDX (`next-mdx-remote/rsc` + remark-gfm, rehype-slug,
 rehype-autolink-headings, shiki) · next/og (OG images, favicon, apple-icon) · Vercel
-Analytics + Speed Insights (**gated behind cookie consent**) · **pnpm** · ESLint
+Analytics + Speed Insights (**gated behind cookie consent**, with custom conversion
+events) · **Resend** (contact-form email, free tier) · **pnpm** · ESLint
 (sorted imports) + Prettier · Zod.
 
 Also in-repo (not shipped to the browser): **Python** asset generators using
@@ -83,7 +84,8 @@ Also in-repo (not shipped to the browser): **Python** asset generators using
 See [`DEVELOPER_GUIDE.md`](DEVELOPER_GUIDE.md) for architecture/conventions and
 [`BRAND_GROWTH_STRATEGY.md`](BRAND_GROWTH_STRATEGY.md) for the growth/positioning plan.
 Key config/data: `lib/site.ts`, `lib/books.ts`, `lib/quiz.ts`,
-`lib/structured-data.ts`, `lib/consent.ts`, `lib/lead-magnet.ts`, `lib/subscribe.ts`.
+`lib/structured-data.ts`, `lib/consent.ts`, `lib/lead-magnet.ts`, `lib/subscribe.ts`,
+`lib/contact.ts`, `lib/rate-limit.ts`, `lib/analytics.ts`.
 
 ## 6. Current state of the site (routes & features)
 
@@ -141,6 +143,38 @@ Key config/data: `lib/site.ts`, `lib/books.ts`, `lib/quiz.ts`,
     conditions (every question is stage-independent). To add a new condition, give a
     question a `showIf`; `profileLabel` searches all questions of a field so
     variant-specific option keys still map to Beehiiv labels.
+  - **Shareable result** (`app/quiz/result/page.tsx`): the result UI was extracted to
+    a shared `QuizResult` (`app/quiz/_components/result.tsx`) used by both the live
+    wizard and a standalone, linkable `/quiz/result?track=&score=&goal=&hurdle=` page
+    (`noindex, follow`, canonical → `/quiz`, dynamic OG card). The wizard result shows
+    a native-share/copy-link button (`_components/share-result.tsx`, `resultPath()`
+    helper); the shared page swaps the inbox note + share button for a "Take the quiz"
+    CTA. `QuizResult` is hookless so it renders in both a client and a server tree.
+- **/contact** (`app/contact/`) — three direct mailto inboxes (`press@`, `bookings@`,
+  `biz@` from `site.contact`) plus a topic-routed form. Layout = a balanced hero + two
+  equal-height peer cards (Direct inboxes / Send a message). Flow: form → server action
+  `app/contact/actions.ts` (honeypot, rate-limit, Zod) → `sendContactMessage`
+  (`lib/contact.ts`) → **Resend** (`https://api.resend.com/emails`), routed to the
+  topic's inbox with `reply_to` = submitter. Falls back to a local stub
+  (`data/contact-messages.json`) when `RESEND_API_KEY` is unset, so the form always
+  works. From address defaults to `noreply@contact.fareshusseini.com` (verified Resend
+  subdomain; override via `CONTACT_FROM_EMAIL`).
+- **/accessibility** (`app/accessibility/page.tsx`) — WCAG 2.1 AA commitment statement:
+  measures in place, known limitations, and how to report an issue (links to /contact).
+- **Error/empty states**: branded **404** (`app/not-found.tsx`, `noindex`), a route
+  **error boundary** (`app/error.tsx`, client, "Try again"), and a **global-error**
+  fallback (`app/global-error.tsx`, inline-styled since it replaces the root layout).
+- **Security & abuse**: `next.config.ts` `headers()` adds CSP (base-uri/object-src/
+  frame-ancestors/upgrade-insecure — deliberately not locking script/style so Analytics
+  /next-og/fonts keep working), X-Content-Type-Options, Referrer-Policy, X-Frame-Options,
+  Permissions-Policy (Vercel adds HSTS). `lib/rate-limit.ts` is a best-effort in-memory
+  per-IP limiter (`rateLimitByIp(action)`, ~6/min) on every public POST: newsletter,
+  reading-list, quiz, contact, `/api/subscribe` (429).
+- **Conversion analytics**: `lib/analytics.ts` `trackConversion(event, props)` fires
+  Vercel custom events **only after analytics consent** (double-gated: the Analytics
+  script is also consent-gated). Events: `newsletter_subscribe`, `reading_list_request`,
+  `quiz_complete`, `contact_submit`. Requires Web Analytics enabled in the Vercel
+  dashboard for data/custom events to record.
 - **/welcome** — post-confirmation page (Beehiiv opt-in redirect URL). `noindex`.
   Confirms the subscription, sets expectations, links to story / reading-list / books
   and the socials.
@@ -158,15 +192,28 @@ Key config/data: `lib/site.ts`, `lib/books.ts`, `lib/quiz.ts`,
   Speed Insights ONLY after analytics consent) + `components/cookie-settings-button.tsx`
   (footer reopen via the `fh:consent-open` window event). Necessary cookies always on;
   the `rl_grant` functional download cookie is exempt from consent.
-- **Footer** (`components/site-footer.tsx`): socials (TikTok, Instagram, **X** — all
-  `@fareshusseini`), legal links (Privacy, Terms), a **Cookie settings** trigger, the
-  `© {year}` line, and the "Website by Clicks & Clients" credit.
+- **Header / nav** (`components/site-header.tsx`): fixed wordmark + hamburger toggle
+  opening a full-screen slide-out menu (`inert` when closed). Nav links: About, What
+  I'm building, The journey, Writing, Books, Newsletter, **Contact**. Socials render as
+  **icon buttons** (`components/social-icons.tsx`: TikTok/Instagram/X glyphs inheriting
+  `currentColor`) in circular bordered chips matching the toggle. The overlay is
+  `overflow-y-auto` with a `min-h-full` centered nav so it never clips on short screens.
+- **Footer** (`components/site-footer.tsx`): grouped multi-column layout — brand
+  wordmark + tagline, **Explore** (About, Books, Reading List, Momentum Score Quiz,
+  +Writing when `showWritingNav`), **Connect** (TikTok, Instagram, X), **Site** (Contact,
+  Privacy, Terms, Accessibility, + a **Cookie settings** trigger), and a bottom bar with
+  the `© {year}` line and the "Website by Clicks & Clients" credit. `CookieSettingsButton`
+  takes an optional `className` so it matches the footer link style.
 - **SEO/AIO**: consolidated JSON-LD via `homeGraphSchema()` (Person + WebSite graph,
   `sameAs` incl. X) plus per-page schema; title template + OpenGraph + Twitter card
   (`@fareshusseini`); `robots.ts` explicitly **allows AI crawlers** (GPTBot,
   OAI-SearchBot, ClaudeBot, anthropic-ai, PerplexityBot, Google-Extended, CCBot);
-  `sitemap.ts` includes /terms + /privacy + /reading-list (excludes noindex /welcome);
+  `sitemap.ts` includes /contact + /accessibility + /terms + /privacy + /reading-list
+  (excludes noindex /welcome and /quiz/result; **/writing is omitted while it has no
+  posts** and is `noindex` until the first essay ships — both flip automatically);
   rich `llms.txt`; `manifest.ts`; generated favicon/apple-icon. Canonical host = **www**.
+  The OG route (`app/api/og/route.tsx`) honors an `eyebrow` param and a `title` (custom
+  card) — used by the quiz-result share image.
 - **Accessibility**: skip link, `lang`, landmarks, `:focus-visible` rings, ARIA on the
   mobile menu (`inert` when closed, Esc + focus return) and cookie banner, form live
   regions, image alts, AA contrast, reduced-motion.
@@ -204,6 +251,8 @@ Key config/data: `lib/site.ts`, `lib/books.ts`, `lib/quiz.ts`,
 | `BEEHIIV_API_KEY` | ✅ Production | Live newsletter (v2 API). |
 | `BEEHIIV_PUBLICATION_ID` | ✅ Production | Beehiiv publication (v2 id). |
 | `DOWNLOAD_SIGNING_SECRET` | ✅ Production | HMAC secret for the reading-list download grant. Dev falls back to an insecure constant. Generate with `openssl rand -base64 32`. |
+| `RESEND_API_KEY` | ✅ Production | Contact-form email via Resend. Without it the form falls back to a local stub. Domain `contact.fareshusseini.com` is verified in Resend. |
+| `CONTACT_FROM_EMAIL` | ✅ Production | Contact-form From address. Defaults in code to `noreply@contact.fareshusseini.com`; must be on a Resend-verified domain. |
 | `YOUTUBE_API_KEY` / `YOUTUBE_CHANNEL_ID` | ❌ (unused yet) | For a future `<LatestVideo />`. |
 
 `.env*` is gitignored; never commit real values. See `.env.example`.
@@ -245,6 +294,12 @@ Key config/data: `lib/site.ts`, `lib/books.ts`, `lib/quiz.ts`,
 ## 11. Backlog / not yet done
 
 - **⚖️ Have a lawyer review `/terms` and `/privacy`.**
+- **Enable Web Analytics in the Vercel dashboard** (Project → Analytics) so pageviews
+  and the custom conversion events actually record in production.
+- **Confirm the contact inboxes receive mail.** The form delivers to `press@`,
+  `bookings@`, `biz@fareshusseini.com`; those must be live receiving mailboxes/aliases
+  on the root domain. `RESEND_API_KEY` + `CONTACT_FROM_EMAIL` are set in Vercel and the
+  Resend subdomain `contact.fareshusseini.com` is verified, so sending works.
 - **Create the quiz Beehiiv custom fields** (First Name, Phone Number, Momentum
   Score, Quiz Track, Quiz Tier, Quiz Goal, Quiz Hurdle, Quiz Tried) so quiz data is
   captured. Segmentation by `utm_source` works without this.

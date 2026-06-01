@@ -6,8 +6,8 @@ import { site } from "@/lib/site";
 const exploreLinks = [
   { label: "About", href: "/about" },
   { label: "Books", href: "/books" },
-  { label: "Reading list", href: "/reading-list" },
-  { label: "Momentum Score quiz", href: "/quiz" },
+  { label: "Reading List", href: "/reading-list" },
+  { label: "Momentum Score Quiz", href: "/quiz" },
   ...(site.showWritingNav ? [{ label: "Writing", href: "/writing" }] : []),
 ];
 

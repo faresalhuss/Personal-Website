@@ -3,6 +3,11 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 
+import {
+  InstagramIcon,
+  TikTokIcon,
+  XIcon,
+} from "@/components/social-icons";
 import { site } from "@/lib/site";
 
 const navLinks = [
@@ -12,6 +17,17 @@ const navLinks = [
   { label: "Writing", href: "/#writing" },
   { label: "Books", href: "/books" },
   { label: "Newsletter", href: "/#newsletter" },
+  { label: "Contact", href: "/contact" },
+];
+
+const socials = [
+  { label: site.socials.tiktok.label, url: site.socials.tiktok.url, Icon: TikTokIcon },
+  {
+    label: site.socials.instagram.label,
+    url: site.socials.instagram.url,
+    Icon: InstagramIcon,
+  },
+  { label: site.socials.x.label, url: site.socials.x.url, Icon: XIcon },
 ];
 
 export function SiteHeader() {
@@ -99,7 +115,7 @@ export function SiteHeader() {
         id="primary-menu"
         inert={!open}
         aria-hidden={!open}
-        className={`fixed inset-0 z-40 bg-night transition-opacity duration-300 ${
+        className={`fixed inset-0 z-40 overflow-y-auto bg-night transition-opacity duration-300 ${
           open
             ? "pointer-events-auto opacity-100"
             : "pointer-events-none opacity-0"
@@ -107,7 +123,7 @@ export function SiteHeader() {
       >
         <nav
           aria-label="Primary"
-          className="mx-auto flex h-full max-w-5xl flex-col justify-center px-6 sm:px-10"
+          className="mx-auto flex min-h-full max-w-5xl flex-col justify-center px-6 py-24 sm:px-10"
         >
           <ul className="space-y-2">
             {navLinks.map((link, i) => (
@@ -116,7 +132,7 @@ export function SiteHeader() {
                   href={link.href}
                   onClick={() => closeMenu()}
                   style={{ transitionDelay: open ? `${i * 40 + 80}ms` : "0ms" }}
-                  className={`block font-display text-5xl leading-[1.05] uppercase transition-all duration-500 hover:text-lime sm:text-7xl ${
+                  className={`block font-display text-4xl leading-[1.06] uppercase transition-all duration-500 hover:text-lime sm:text-6xl ${
                     open
                       ? "translate-y-0 opacity-100"
                       : "translate-y-4 opacity-0"
@@ -131,32 +147,27 @@ export function SiteHeader() {
           <div
             aria-label="Social media"
             role="group"
-            className="mt-12 flex flex-wrap gap-x-8 gap-y-2 text-sm tracking-widest text-ink-dim uppercase"
+            className="mt-12 flex items-center gap-4"
           >
-            <a
-              href={site.socials.tiktok.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="transition-colors hover:text-lime"
-            >
-              TikTok
-            </a>
-            <a
-              href={site.socials.instagram.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="transition-colors hover:text-lime"
-            >
-              Instagram
-            </a>
-            <a
-              href={site.socials.x.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="transition-colors hover:text-lime"
-            >
-              X
-            </a>
+            {socials.map(({ label, url, Icon }, i) => (
+              <a
+                key={label}
+                href={url}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={label}
+                style={{
+                  transitionDelay: open
+                    ? `${navLinks.length * 40 + 120 + i * 40}ms`
+                    : "0ms",
+                }}
+                className={`flex h-11 w-11 items-center justify-center rounded-full border border-line-2 text-ink-dim transition-all duration-500 hover:border-lime hover:text-lime focus-visible:border-lime focus-visible:text-lime focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-lime ${
+                  open ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
+                }`}
+              >
+                <Icon className="h-[18px] w-[18px]" />
+              </a>
+            ))}
           </div>
         </nav>
       </div>
