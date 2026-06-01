@@ -26,8 +26,8 @@ export default function HomePage() {
       <Hero />
       <Intro />
       <Ventures />
-      <QuizCta />
       <Timeline />
+      <QuizCta />
       <Writing />
       <Feature />
       <Newsletter />
