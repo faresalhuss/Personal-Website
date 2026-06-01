@@ -132,14 +132,14 @@ export function SiteHeader() {
           aria-label="Primary"
           className="mx-auto flex min-h-full max-w-5xl flex-col justify-center px-6 py-[clamp(2rem,7vh,5rem)] sm:px-10"
         >
-          <ul className="flex flex-col gap-[clamp(0.1rem,0.6vh,0.5rem)]">
+          <ul className="flex flex-col gap-[clamp(0.15rem,0.8vh,0.65rem)]">
             {navLinks.map((link, i) => (
               <li key={link.href}>
                 <Link
                   href={link.href}
                   onClick={() => closeMenu()}
                   style={{ transitionDelay: open ? `${i * 40 + 80}ms` : "0ms" }}
-                  className={`block font-display text-[clamp(2rem,5.5vh,3.75rem)] leading-[1.05] uppercase transition-all duration-500 hover:text-lime ${
+                  className={`block font-display text-[clamp(2.25rem,8vh,5.5rem)] leading-[1.04] uppercase transition-all duration-500 hover:text-lime ${
                     open
                       ? "translate-y-0 opacity-100"
                       : "translate-y-4 opacity-0"
