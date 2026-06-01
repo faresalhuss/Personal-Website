@@ -125,6 +125,22 @@ Key config/data: `lib/site.ts`, `lib/books.ts`, `lib/quiz.ts`,
   `lib/quiz.ts`; wizard `app/quiz/_components/quiz.tsx`; action `app/quiz/actions.ts`;
   homepage CTA `app/(home)/_components/quiz-cta.tsx`. Founder track copy is owner-
   approved; Focus/Operator/Explorer were drafted from his stated anchors.
+  - **Conditional flow (no irrelevant questions).** Gating options carry a `key`
+    (business: `none`/`idea`/`running`/`multi`; productivity: `dialed`/
+    `inconsistent`/`struggling`/`bottleneck`). Every question may declare a
+    `showIf(ctx)` predicate, where `ctx = { business, productivity, mat }` (mat =
+    maturity answers by question id). Helpers in `lib/quiz.ts`: `isOperating`,
+    `isPreLaunch`, `hasOffer`, `operatingWithOffer`. Operational maturity questions
+    (customers, pricing, runs-without-you) use `operatingWithOffer`, so pre-launch
+    (idea) and pre-offer people skip them; work-habit questions always show. The
+    **hurdle** and **"what you've tried"** questions each have an *operating* variant
+    (`showIf: isOperating`) and a *pre-launch* variant (`showIf: isPreLaunch`) on the
+    same `field`; only one shows. The wizard walks `trackItems` dynamically, skipping
+    non-applicable items (forward and back), and the score counts only applicable +
+    answered maturity questions (robust to back-edits). Focus/Explorer have no
+    conditions (every question is stage-independent). To add a new condition, give a
+    question a `showIf`; `profileLabel` searches all questions of a field so
+    variant-specific option keys still map to Beehiiv labels.
 - **/welcome** — post-confirmation page (Beehiiv opt-in redirect URL). `noindex`.
   Confirms the subscription, sets expectations, links to story / reading-list / books
   and the socials.
@@ -212,9 +228,13 @@ Key config/data: `lib/site.ts`, `lib/books.ts`, `lib/quiz.ts`,
 - **Vercel CLI `read ETIMEDOUT`:** `vercel deploy` sometimes errors while *polling*
   deployment status, but the build still completes server-side. Don't trust the CLI
   exit — verify against the live URL.
-- **Claude Preview harness can't scroll:** `window.scrollTo`/`scrollY` don't move in
-  its eval sandbox (innerHeight quirks), so scroll-linked behavior (e.g. the hero
-  scroll cue) can't be simulated there — verify by reasoning / a real browser.
+- **Claude Preview harness is flaky:** `window.scrollTo`/`scrollY` don't move in its
+  eval sandbox (innerHeight quirks), so scroll-linked behavior (e.g. the hero scroll
+  cue) can't be simulated there. In-page navigation (`location.assign`/`href`)
+  sometimes doesn't take on the first try, and long `preview_eval` walk-throughs can
+  time out. Workarounds: verify the path with `location.pathname` before driving, and
+  for multi-step UI (like the quiz) script `preview_eval` click-throughs that read
+  the rendered state rather than relying on screenshots.
 - ESLint forbids **synchronous `setState` in an effect**. Patterns used to avoid it:
   `book-grid.tsx` relies on IntersectionObserver + global reduced-motion CSS;
   `lib/consent.ts` uses `useSyncExternalStore` (also avoids hydration mismatch).
