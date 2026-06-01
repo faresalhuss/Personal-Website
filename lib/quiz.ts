@@ -24,7 +24,20 @@ export type QuizOption = {
   /** 1–4; higher = more momentum/maturity. */
   points: number;
 };
-export type Question = { id: string; prompt: string; options: QuizOption[] };
+export type Question = {
+  id: string;
+  prompt: string;
+  options: QuizOption[];
+  /** Only show this question when the predicate passes, given prior maturity
+   * answers keyed by question id (the chosen option's points). Used to skip
+   * questions that don't apply yet, e.g. asking about customers before there's
+   * even an offer. */
+  showIf?: (answers: Record<string, number>) => boolean;
+};
+
+/** True once the visitor has at least a rough offer (offer answer >= 2), i.e.
+ * they're past "still figuring out what I'm selling." */
+export const hasOffer = (a: Record<string, number>) => (a.offer ?? 0) >= 2;
 
 export type GatingOption = { label: string; yes: boolean };
 export type GatingQuestion = {
@@ -177,6 +190,7 @@ export const tracks: Record<TrackKey, Track> = {
           { label: "A repeatable channel or two", points: 3 },
           { label: "A reliable system I can turn up", points: 4 },
         ],
+        showIf: hasOffer,
       },
       {
         id: "money",
@@ -187,6 +201,7 @@ export const tracks: Record<TrackKey, Track> = {
           { label: "Profitable, with room to optimize", points: 3 },
           { label: "Strong margins and a clear model", points: 4 },
         ],
+        showIf: hasOffer,
       },
       {
         id: "systems",
@@ -197,6 +212,7 @@ export const tracks: Record<TrackKey, Track> = {
           { label: "Core work is delegated or systemized", points: 3 },
           { label: "It largely runs without me day to day", points: 4 },
         ],
+        showIf: hasOffer,
       },
       {
         id: "plan",
@@ -512,6 +528,7 @@ export const tracks: Record<TrackKey, Track> = {
           { label: "A repeatable channel or two", points: 3 },
           { label: "A system I can turn up", points: 4 },
         ],
+        showIf: hasOffer,
       },
       {
         id: "deep-time",
@@ -532,6 +549,7 @@ export const tracks: Record<TrackKey, Track> = {
           { label: "Core work is systemized", points: 3 },
           { label: "It mostly runs without me", points: 4 },
         ],
+        showIf: hasOffer,
       },
       {
         id: "follow-through",
@@ -747,12 +765,13 @@ export const tracks: Record<TrackKey, Track> = {
   },
 };
 
-/** Normalize raw points to a 0–10 score with one decimal (min option = 1pt,
- * so scores land ~2.5–10.0, never a demoralizing 0). */
-export function computeScore(track: Track, points: number[]): number {
+/** Normalize the answered (shown) maturity questions to a 0–10 score with one
+ * decimal. Only counts the questions actually asked, so skipped questions don't
+ * drag the score. Min option = 1pt, so scores land ~2.5–10.0, never 0. */
+export function computeScore(points: number[]): number {
+  if (points.length === 0) return 0;
   const sum = points.reduce((a, b) => a + b, 0);
-  const max = track.questions.length * MAX_POINTS;
-  if (max === 0) return 0;
+  const max = points.length * MAX_POINTS;
   return Math.round((sum / max) * 100) / 10;
 }
 

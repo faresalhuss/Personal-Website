@@ -8,9 +8,11 @@ import {
   computeScore,
   gatingQuestions,
   type ProfileQuestion,
+  type Question,
   type QuizOption,
   routeTrack,
   SCORE_NAME,
+  type Tier,
   tierForScore,
   type Track,
   type TrackKey,
@@ -21,14 +23,24 @@ import { type QuizState, submitQuiz } from "../actions";
 
 type Phase = "intro" | "questions" | "contact" | "result";
 type ProfileAnswers = { goal?: string; hurdle?: string; tried?: string[] };
+type Item =
+  | { id: string; kind: "maturity"; q: Question }
+  | {
+      id: string;
+      kind: "single" | "multi";
+      field: "goal" | "hurdle" | "tried";
+      q: ProfileQuestion;
+    };
+
 const initialState: QuizState = { status: "idle" };
 
 export function Quiz() {
   const [phase, setPhase] = useState<Phase>("intro");
-  const [step, setStep] = useState(0);
   const [business, setBusiness] = useState<boolean | null>(null);
   const [productivity, setProductivity] = useState<boolean | null>(null);
-  const [points, setPoints] = useState<number[]>([]);
+  const [gatingStep, setGatingStep] = useState(0); // 0,1 = gating; 2 = track flow
+  const [cursor, setCursor] = useState(0); // index into trackItems (raw)
+  const [matAnswers, setMatAnswers] = useState<Record<string, number>>({});
   const [profile, setProfile] = useState<ProfileAnswers>({});
   const headingRef = useRef<HTMLHeadingElement>(null);
 
@@ -41,60 +53,102 @@ export function Quiz() {
   );
   const track = trackKey ? tracks[trackKey] : null;
 
-  const M = track ? track.questions.length : 5; // maturity count (estimate pre-track)
-  const P = track ? track.profile.length : 3; // profile count (estimate)
-  const totalQuestions = 2 + M + P;
-  const lastQuestionStep = 2 + M + P - 1;
+  const trackItems: Item[] = useMemo(() => {
+    if (!track) return [];
+    const maturity: Item[] = track.questions.map((q) => ({
+      id: q.id,
+      kind: "maturity",
+      q,
+    }));
+    const profileItems: Item[] = track.profile.map((pq) => ({
+      id: pq.field,
+      kind: pq.kind === "multi" ? "multi" : "single",
+      field: pq.field,
+      q: pq,
+    }));
+    return [...maturity, ...profileItems];
+  }, [track]);
+
+  const applicable = (item: Item, answers: Record<string, number>) =>
+    item.kind !== "maturity" || !item.q.showIf || item.q.showIf(answers);
+
+  const applicableCount = trackItems.filter((it) =>
+    applicable(it, matAnswers),
+  ).length;
+  const totalQuestions = 2 + (track ? applicableCount : 8);
 
   useEffect(() => {
     if (phase === "questions") headingRef.current?.focus();
-  }, [step, phase]);
+  }, [gatingStep, cursor, phase]);
 
-  function advanceFrom(current: number) {
-    if (current >= lastQuestionStep) setPhase("contact");
-    else setStep(current + 1);
+  function advanceTrack(from: number, answers: Record<string, number>) {
+    for (let i = from + 1; i < trackItems.length; i++) {
+      if (applicable(trackItems[i], answers)) {
+        setCursor(i);
+        return;
+      }
+    }
+    setPhase("contact");
   }
 
   function selectGating(which: "business" | "productivity", yes: boolean) {
-    if (which === "business") setBusiness(yes);
-    else setProductivity(yes);
-    setStep(step + 1);
+    if (which === "business") {
+      setBusiness(yes);
+      setGatingStep(1);
+    } else {
+      setProductivity(yes);
+      setGatingStep(2);
+      setCursor(0); // offer/first maturity question is always applicable
+    }
   }
 
-  function selectMaturity(idx: number, option: QuizOption) {
-    setPoints((prev) => {
-      const next = [...prev];
-      next[idx] = option.points;
-      return next;
-    });
-    advanceFrom(step);
+  function selectMaturity(item: Item, option: QuizOption) {
+    const next = { ...matAnswers, [item.id]: option.points };
+    setMatAnswers(next);
+    advanceTrack(cursor, next);
   }
 
   function selectProfileSingle(field: "goal" | "hurdle", key: string) {
     setProfile((prev) => ({ ...prev, [field]: key }));
-    advanceFrom(step);
+    advanceTrack(cursor, matAnswers);
   }
 
   function toggleTried(key: string) {
     setProfile((prev) => {
       const cur = prev.tried ?? [];
-      const tried = cur.includes(key)
-        ? cur.filter((k) => k !== key)
-        : [...cur, key];
-      return { ...prev, tried };
+      return {
+        ...prev,
+        tried: cur.includes(key)
+          ? cur.filter((k) => k !== key)
+          : [...cur, key],
+      };
     });
   }
 
   function back() {
-    if (step === 0) {
-      setPhase("intro");
+    if (gatingStep < 2) {
+      if (gatingStep === 0) setPhase("intro");
+      else setGatingStep(0);
       return;
     }
-    setStep(Math.max(0, step - 1));
+    for (let i = cursor - 1; i >= 0; i--) {
+      if (applicable(trackItems[i], matAnswers)) {
+        setCursor(i);
+        return;
+      }
+    }
+    setGatingStep(1); // back out of the track flow to the last gating question
   }
 
-  const score = track ? computeScore(track, points) : 0;
-  const tier = track ? tierForScore(track, score) : null;
+  // Score from the maturity questions that are currently applicable + answered.
+  const applicableMaturity = track
+    ? track.questions.filter((q) => !q.showIf || q.showIf(matAnswers))
+    : [];
+  const points = applicableMaturity
+    .map((q) => matAnswers[q.id])
+    .filter((p): p is number => typeof p === "number");
+  const score = computeScore(points);
+  const tier: Tier | null = track ? tierForScore(track, score) : null;
 
   // ── Intro ───────────────────────────────────────────────────────────────
   if (phase === "intro") {
@@ -115,8 +169,8 @@ export function Quiz() {
         <button
           type="button"
           onClick={() => {
+            setGatingStep(0);
             setPhase("questions");
-            setStep(0);
           }}
           className="btn-lime mt-9"
         >
@@ -149,27 +203,37 @@ export function Quiz() {
         profile={profile}
         onSuccess={() => setPhase("result")}
         onBack={() => {
-          setPhase("questions");
-          setStep(lastQuestionStep);
+          setGatingStep(2);
+          // return to the last applicable item
+          for (let i = trackItems.length - 1; i >= 0; i--) {
+            if (applicable(trackItems[i], matAnswers)) {
+              setCursor(i);
+              break;
+            }
+          }
         }}
       />
     );
   }
 
   // ── Questions ─────────────────────────────────────────────────────────
-  const progress = Math.min(100, Math.round((step / totalQuestions) * 100));
-  const isGating = step < 2;
-  const isMaturity = !isGating && step < 2 + M;
-  const profileIndex = step - (2 + M);
-  const profileQ: ProfileQuestion | undefined = track?.profile[profileIndex];
-  const gating = gatingQuestions[step];
-  const matQ = track?.questions[step - 2];
+  const inGating = gatingStep < 2;
+  const item = !inGating ? trackItems[cursor] : null;
+  const gating = gatingQuestions[gatingStep];
 
-  let prompt = "";
-  if (isGating) prompt = gating.prompt;
-  else if (isMaturity) prompt = matQ?.prompt ?? "";
-  else prompt = profileQ?.prompt ?? "";
+  // current position for progress
+  const answeredBefore = inGating
+    ? gatingStep
+    : 2 +
+      trackItems
+        .slice(0, cursor)
+        .filter((it) => applicable(it, matAnswers)).length;
+  const progress = Math.min(
+    100,
+    Math.round((answeredBefore / totalQuestions) * 100),
+  );
 
+  const prompt = inGating ? gating.prompt : item?.q.prompt;
   const triedSelected = profile.tried ?? [];
 
   return (
@@ -179,7 +243,7 @@ export function Quiz() {
         role="progressbar"
         aria-valuemin={0}
         aria-valuemax={totalQuestions}
-        aria-valuenow={step}
+        aria-valuenow={answeredBefore}
         aria-label="Quiz progress"
       >
         <div
@@ -188,9 +252,9 @@ export function Quiz() {
         />
       </div>
 
-      <div key={step} className="animate-fade-up">
+      <div key={`${gatingStep}-${cursor}`} className="animate-fade-up">
         <p className="eyebrow mb-4">
-          Question {step + 1} of {totalQuestions}
+          Question {answeredBefore + 1} of {totalQuestions}
         </p>
         <h2
           ref={headingRef}
@@ -202,9 +266,11 @@ export function Quiz() {
         </h2>
 
         {/* Single-select: gating, maturity, profile single */}
-        {(isGating || isMaturity || profileQ?.kind === "single") && (
+        {(inGating ||
+          item?.kind === "maturity" ||
+          item?.kind === "single") && (
           <div className="mt-8 flex max-w-2xl flex-col gap-3">
-            {isGating &&
+            {inGating &&
               gating.options.map((opt, i) => (
                 <OptionButton
                   key={i}
@@ -212,26 +278,28 @@ export function Quiz() {
                   onClick={() => selectGating(gating.id, opt.yes)}
                 />
               ))}
-            {isMaturity &&
-              matQ?.options.map((opt, i) => (
+            {!inGating &&
+              item?.kind === "maturity" &&
+              item.q.options.map((opt, i) => (
                 <OptionButton
                   key={i}
                   label={opt.label}
-                  selected={points[step - 2] === opt.points}
-                  onClick={() => selectMaturity(step - 2, opt)}
+                  selected={matAnswers[item.id] === opt.points}
+                  onClick={() => selectMaturity(item, opt)}
                 />
               ))}
-            {!isGating &&
-              !isMaturity &&
-              profileQ?.kind === "single" &&
-              profileQ.options.map((opt) => (
+            {!inGating &&
+              item?.kind === "single" &&
+              item.q.options.map((opt) => (
                 <OptionButton
                   key={opt.key}
                   label={opt.label}
-                  selected={profile[profileQ.field as "goal" | "hurdle"] === opt.key}
+                  selected={
+                    profile[item.field as "goal" | "hurdle"] === opt.key
+                  }
                   onClick={() =>
                     selectProfileSingle(
-                      profileQ.field as "goal" | "hurdle",
+                      item.field as "goal" | "hurdle",
                       opt.key,
                     )
                   }
@@ -241,11 +309,11 @@ export function Quiz() {
         )}
 
         {/* Multi-select: "tried" */}
-        {!isGating && !isMaturity && profileQ?.kind === "multi" && (
+        {!inGating && item?.kind === "multi" && (
           <>
             <p className="mt-2 text-sm text-ink-faint">Pick any that apply.</p>
             <div className="mt-6 flex max-w-2xl flex-col gap-3">
-              {profileQ.options.map((opt) => (
+              {item.q.options.map((opt) => (
                 <OptionButton
                   key={opt.key}
                   label={opt.label}
@@ -257,7 +325,7 @@ export function Quiz() {
             </div>
             <button
               type="button"
-              onClick={() => advanceFrom(step)}
+              onClick={() => advanceTrack(cursor, matAnswers)}
               className="btn-lime mt-6"
             >
               Continue
@@ -473,7 +541,7 @@ function Result({
 }: {
   track: Track;
   score: number;
-  tier: { name: string; blurb: string };
+  tier: Tier;
   goal?: string;
   hurdle?: string;
 }) {
@@ -569,13 +637,15 @@ function Result({
         </div>
       ) : null}
 
-      {/* Resources */}
+      {/* Resources — open in a new tab so the result stays put. */}
       <h3 className="mt-12 font-display text-2xl text-ink">Start here</h3>
       <div className="mt-5 grid gap-4 sm:grid-cols-2">
         {track.recommendations.map((rec) => (
-          <Link
+          <a
             key={rec.href}
             href={rec.href}
+            target="_blank"
+            rel="noopener noreferrer"
             className="group flex flex-col rounded-[var(--radius-card)] border border-line bg-night-soft p-6 transition-colors hover:border-lime/60"
           >
             <span className="flex items-center justify-between font-display text-xl text-ink">
@@ -584,11 +654,11 @@ function Result({
                 aria-hidden="true"
                 className="text-lime transition-transform duration-300 group-hover:translate-x-1"
               >
-                &rarr;
+                &nearr;
               </span>
             </span>
             <span className="mt-2 text-sm text-ink-dim">{rec.note}</span>
-          </Link>
+          </a>
         ))}
       </div>
     </div>
