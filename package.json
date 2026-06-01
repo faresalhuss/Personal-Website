@@ -2,6 +2,14 @@
   "name": "fareshusseini-com",
   "version": "0.1.0",
   "private": true,
+  "//browserslist": "Modern targets so Next/SWC stops shipping polyfills for features (Array.at, Object.hasOwn, etc.) that all browsers from ~2022 on support. Covers virtually all real traffic; drops ~14 KiB of legacy JS.",
+  "browserslist": [
+    "Chrome >= 93",
+    "Edge >= 93",
+    "Firefox >= 92",
+    "Safari >= 15.4",
+    "iOS >= 15.4"
+  ],
   "scripts": {
     "dev": "next dev",
     "build": "next build",
