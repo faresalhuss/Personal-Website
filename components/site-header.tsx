@@ -41,11 +41,18 @@ export function SiteHeader() {
     toggleRef.current?.focus();
   }
 
-  // Lock body scroll while the menu is open.
+  // Lock body scroll while the menu is open. `overscroll-behavior: none` on the
+  // root stops the macOS/iOS elastic rubber-band that would otherwise peek at
+  // the page behind the fixed overlay during a fast scroll gesture.
   useEffect(() => {
-    document.body.style.overflow = open ? "hidden" : "";
+    const root = document.documentElement;
+    if (open) {
+      document.body.style.overflow = "hidden";
+      root.style.overscrollBehavior = "none";
+    }
     return () => {
       document.body.style.overflow = "";
+      root.style.overscrollBehavior = "";
     };
   }, [open]);
 
@@ -115,7 +122,7 @@ export function SiteHeader() {
         id="primary-menu"
         inert={!open}
         aria-hidden={!open}
-        className={`fixed inset-0 z-40 overflow-y-auto bg-night transition-opacity duration-300 ${
+        className={`fixed inset-0 z-40 overflow-y-auto overscroll-contain bg-night transition-opacity duration-300 ${
           open
             ? "pointer-events-auto opacity-100"
             : "pointer-events-none opacity-0"
@@ -123,16 +130,16 @@ export function SiteHeader() {
       >
         <nav
           aria-label="Primary"
-          className="mx-auto flex min-h-full max-w-5xl flex-col justify-center px-6 py-24 sm:px-10"
+          className="mx-auto flex min-h-full max-w-5xl flex-col justify-center px-6 py-[clamp(2rem,7vh,5rem)] sm:px-10"
         >
-          <ul className="space-y-2">
+          <ul className="flex flex-col gap-[clamp(0.1rem,0.6vh,0.5rem)]">
             {navLinks.map((link, i) => (
               <li key={link.href}>
                 <Link
                   href={link.href}
                   onClick={() => closeMenu()}
                   style={{ transitionDelay: open ? `${i * 40 + 80}ms` : "0ms" }}
-                  className={`block font-display text-4xl leading-[1.06] uppercase transition-all duration-500 hover:text-lime sm:text-6xl ${
+                  className={`block font-display text-[clamp(2rem,5.5vh,3.75rem)] leading-[1.05] uppercase transition-all duration-500 hover:text-lime ${
                     open
                       ? "translate-y-0 opacity-100"
                       : "translate-y-4 opacity-0"
@@ -147,7 +154,7 @@ export function SiteHeader() {
           <div
             aria-label="Social media"
             role="group"
-            className="mt-12 flex items-center gap-4"
+            className="mt-[clamp(1.5rem,4vh,3rem)] flex items-center gap-4"
           >
             {socials.map(({ label, url, Icon }, i) => (
               <a
