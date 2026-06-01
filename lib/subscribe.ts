@@ -51,7 +51,9 @@ async function subscribeViaBeehiiv(
   const custom_fields = opts.customFields
     ? Object.entries(opts.customFields)
         .filter(([, v]) => v !== "" && v != null)
-        .map(([name, value]) => ({ name, value: String(value) }))
+        // Preserve number values (e.g. the Momentum Score) so a beehiiv
+        // "Number" field receives a real number, not a string.
+        .map(([name, value]) => ({ name, value }))
     : undefined;
 
   try {
