@@ -3,6 +3,7 @@
 import { z } from "zod";
 
 import { profileLabel, SCORE_NAME, type TrackKey, tracks } from "@/lib/quiz";
+import { rateLimitByIp } from "@/lib/rate-limit";
 import { subscribeEmail } from "@/lib/subscribe";
 
 export type QuizState =
@@ -35,6 +36,13 @@ export async function submitQuiz(
 ): Promise<QuizState> {
   // Honeypot — bots fill this hidden field.
   if (formData.get("company")) return { status: "success" };
+
+  if (!(await rateLimitByIp("quiz"))) {
+    return {
+      status: "error",
+      message: "Too many attempts. Please wait a minute and try again.",
+    };
+  }
 
   const parsed = Schema.safeParse({
     firstName: formData.get("firstName"),

@@ -3,6 +3,7 @@
 import { cookies } from "next/headers";
 
 import { GRANT_COOKIE, GRANT_TTL_SECONDS, issueGrant } from "@/lib/lead-magnet";
+import { rateLimitByIp } from "@/lib/rate-limit";
 import { subscribeEmail } from "@/lib/subscribe";
 
 export type ReadingListState =
@@ -18,6 +19,13 @@ export async function requestReadingList(
   // so the gated download stays locked and no junk hits the list.
   if (formData.get("company")) {
     return { status: "success" };
+  }
+
+  if (!(await rateLimitByIp("reading-list"))) {
+    return {
+      status: "error",
+      message: "Too many attempts. Please wait a minute and try again.",
+    };
   }
 
   const result = await subscribeEmail(formData.get("email"), {

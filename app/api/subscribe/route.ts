@@ -1,8 +1,16 @@
 import { NextResponse } from "next/server";
 
+import { rateLimitByIp } from "@/lib/rate-limit";
 import { subscribeEmail } from "@/lib/subscribe";
 
 export async function POST(req: Request) {
+  if (!(await rateLimitByIp("subscribe-api"))) {
+    return NextResponse.json(
+      { ok: false, error: "Too many requests. Please try again shortly." },
+      { status: 429 },
+    );
+  }
+
   let email: unknown;
 
   const contentType = req.headers.get("content-type") ?? "";

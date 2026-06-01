@@ -18,6 +18,12 @@ export const site = {
     // Used in microcopy. Keep honest; change if the cadence/day changes.
     cadence: "every week",
   },
+  // Inboxes shown on /contact and routed to by the contact form's topic select.
+  contact: {
+    press: "press@fareshusseini.com",
+    bookings: "bookings@fareshusseini.com",
+    biz: "biz@fareshusseini.com",
+  },
   socials: {
     tiktok: {
       label: "TikTok",

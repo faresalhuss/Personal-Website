@@ -27,16 +27,20 @@ async function loadGoogleFont(
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const rawTitle = searchParams.get("title");
-  const isEssay = Boolean(rawTitle);
+  const rawEyebrow = searchParams.get("eyebrow");
+  // A "custom card" (essay, quiz result, etc.) renders the supplied title as
+  // the headline; otherwise we render the default hero.
+  const isCustomCard = Boolean(rawTitle);
 
-  // Default share image mirrors the hero. Essays show their title instead.
+  // Default share image mirrors the hero. Custom cards show their title, and
+  // any page can override the eyebrow label.
   const eyebrow = (
-    isEssay ? "Writing" : "Entrepreneur · Creator · Writer"
+    rawEyebrow ?? (isCustomCard ? "Writing" : "Entrepreneur · Creator · Writer")
   ).toUpperCase();
-  const headline = isEssay
+  const headline = isCustomCard
     ? rawTitle!.slice(0, 110).toUpperCase()
     : "FA'RES\nHUSSEINI";
-  const subline = isEssay
+  const subline = isCustomCard
     ? ""
     : "I build small businesses, and I'm having fun along the way.";
 
@@ -78,7 +82,7 @@ export async function GET(req: Request) {
           display: "flex",
           flexDirection: "column",
           fontFamily: "Anton",
-          fontSize: isEssay ? 84 : 132,
+          fontSize: isCustomCard ? 84 : 132,
           lineHeight: 0.92,
           letterSpacing: 1,
           color: INK,
@@ -107,7 +111,7 @@ export async function GET(req: Request) {
         </div>
       ) : null}
 
-      {isEssay ? (
+      {isCustomCard ? (
         <div
           style={{
             display: "flex",

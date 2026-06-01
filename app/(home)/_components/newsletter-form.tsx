@@ -1,6 +1,8 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useEffect } from "react";
+
+import { trackConversion } from "@/lib/analytics";
 
 import { subscribeAction, type SubscribeState } from "./actions";
 
@@ -11,6 +13,12 @@ export function NewsletterForm() {
     subscribeAction,
     initialState,
   );
+
+  useEffect(() => {
+    if (state.status === "success") {
+      trackConversion("newsletter_subscribe", { source: "homepage" });
+    }
+  }, [state.status]);
 
   if (state.status === "success") {
     return (

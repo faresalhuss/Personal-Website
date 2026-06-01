@@ -4,27 +4,35 @@ import Link from "next/link";
 import { Section } from "@/components/section";
 import { getPosts } from "@/lib/writing";
 
-export const metadata: Metadata = {
-  title: "Writing",
-  description:
-    "Essays on what I'm learning building small businesses: the wins, the losses, and what I'd do differently with hindsight.",
-  alternates: { canonical: "/writing" },
-  openGraph: {
-    type: "website",
-    url: "/writing",
-    title: "Writing — Fa'res Husseini",
+export async function generateMetadata(): Promise<Metadata> {
+  const posts = await getPosts();
+
+  return {
+    title: "Writing",
     description:
-      "Essays on building small businesses, what works, what doesn't, and what to take from the mistakes.",
-    images: [
-      {
-        url: "/api/og?eyebrow=Writing",
-        width: 1200,
-        height: 630,
-        alt: "Writing",
-      },
-    ],
-  },
-};
+      "Essays on what I'm learning building small businesses: the wins, the losses, and what I'd do differently with hindsight.",
+    alternates: { canonical: "/writing" },
+    // While there are no published essays, keep the index out of the index so
+    // an empty page never surfaces in search. It flips to indexable
+    // automatically the moment a post ships.
+    robots: posts.length === 0 ? { index: false, follow: true } : undefined,
+    openGraph: {
+      type: "website",
+      url: "/writing",
+      title: "Writing — Fa'res Husseini",
+      description:
+        "Essays on building small businesses, what works, what doesn't, and what to take from the mistakes.",
+      images: [
+        {
+          url: "/api/og?eyebrow=Writing",
+          width: 1200,
+          height: 630,
+          alt: "Writing",
+        },
+      ],
+    },
+  };
+}
 
 function formatDate(iso: string): string {
   return new Date(iso).toLocaleDateString("en-US", {

@@ -27,12 +27,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.7,
     },
     {
-      url: `${site.url}/writing`,
-      lastModified: now,
-      changeFrequency: "weekly",
-      priority: 0.7,
-    },
-    {
       url: `${site.url}/quiz`,
       lastModified: now,
       changeFrequency: "monthly",
@@ -43,6 +37,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: now,
       changeFrequency: "monthly",
       priority: 0.8,
+    },
+    {
+      url: `${site.url}/contact`,
+      lastModified: now,
+      changeFrequency: "yearly",
+      priority: 0.5,
     },
     {
       url: `${site.url}/privacy`,
@@ -56,7 +56,24 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "yearly",
       priority: 0.3,
     },
+    {
+      url: `${site.url}/accessibility`,
+      lastModified: now,
+      changeFrequency: "yearly",
+      priority: 0.3,
+    },
   ];
+
+  // Only advertise /writing once it has at least one published essay — it's
+  // noindex while empty, so it shouldn't appear in the sitemap either.
+  if (posts.length > 0) {
+    staticRoutes.push({
+      url: `${site.url}/writing`,
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.7,
+    });
+  }
 
   const essays: MetadataRoute.Sitemap = posts.map((post) => ({
     url: postUrl(post.slug),

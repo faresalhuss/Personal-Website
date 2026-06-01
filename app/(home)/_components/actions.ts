@@ -1,5 +1,6 @@
 "use server";
 
+import { rateLimitByIp } from "@/lib/rate-limit";
 import { subscribeEmail } from "@/lib/subscribe";
 
 export type SubscribeState =
@@ -14,6 +15,13 @@ export async function subscribeAction(
   // Honeypot: real people leave this hidden field empty.
   if (formData.get("company")) {
     return { status: "success" };
+  }
+
+  if (!(await rateLimitByIp("subscribe"))) {
+    return {
+      status: "error",
+      message: "Too many attempts. Please wait a minute and try again.",
+    };
   }
 
   const result = await subscribeEmail(formData.get("email"));

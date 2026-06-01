@@ -36,6 +36,7 @@ export async function GET() {
 - [Books](${site.url}/books): Reading lists and recommendations by theme, with a full reading history
 - [Reading list (free guide)](${site.url}/reading-list): The 15 books he's found most helpful building businesses, as a free PDF
 - [Momentum Score quiz](${site.url}/quiz): A 2-minute quiz that scores where you are with business and productivity and returns a tailored roadmap
+- [Contact](${site.url}/contact): Direct inboxes for press, podcast bookings, and business inquiries, plus a contact form
 
 ## Writing
 ${essayLines}
@@ -48,6 +49,7 @@ ${essayLines}
 ## Legal
 - [Privacy Policy](${site.url}/privacy)
 - [Terms of Service](${site.url}/terms)
+- [Accessibility](${site.url}/accessibility)
 `;
 
   return new Response(body, {
