@@ -267,7 +267,7 @@ export const tracks: Record<TrackKey, Track> = {
       {
         field: "goal",
         kind: "single",
-        prompt: "What are you really after with your business?",
+        prompt: "What are you really after?",
         options: [
           { key: "income", label: "Replace and grow my income" },
           { key: "lifestyle", label: "A steady, profitable business" },
@@ -305,6 +305,7 @@ export const tracks: Record<TrackKey, Track> = {
         field: "tried",
         kind: "multi",
         prompt: "What have you already tried? Pick any that apply.",
+        showIf: isOperating,
         options: [
           { key: "content", label: "Organic content / posting" },
           { key: "ads", label: "Paid ads" },
@@ -312,6 +313,19 @@ export const tracks: Record<TrackKey, Track> = {
           { key: "referrals", label: "Referrals / word of mouth" },
           { key: "networking", label: "Networking / events" },
           { key: "none", label: "Nothing structured yet" },
+        ],
+      },
+      {
+        field: "tried",
+        kind: "multi",
+        prompt: "What have you done to get started so far? Pick any that apply.",
+        showIf: isPreLaunch,
+        options: [
+          { key: "research", label: "Researched and planned it" },
+          { key: "talked", label: "Talked to potential customers" },
+          { key: "built", label: "Built something (a site, product, prototype)" },
+          { key: "shared", label: "Shared it publicly or with people I know" },
+          { key: "none", label: "Nothing yet" },
         ],
       },
     ],
@@ -664,12 +678,26 @@ export const tracks: Record<TrackKey, Track> = {
         field: "tried",
         kind: "multi",
         prompt: "What have you already tried? Pick any that apply.",
+        showIf: isOperating,
         options: [
           { key: "delegate", label: "Hiring / delegating" },
           { key: "marketing", label: "Marketing / content" },
           { key: "systems", label: "Systems / SOPs" },
           { key: "productivity", label: "Productivity methods" },
           { key: "none", label: "Nothing structured yet" },
+        ],
+      },
+      {
+        field: "tried",
+        kind: "multi",
+        prompt: "What have you done to get started so far? Pick any that apply.",
+        showIf: isPreLaunch,
+        options: [
+          { key: "research", label: "Researched and planned it" },
+          { key: "talked", label: "Talked to potential customers" },
+          { key: "built", label: "Built something (a site, product, prototype)" },
+          { key: "shared", label: "Shared it publicly or with people I know" },
+          { key: "none", label: "Nothing yet" },
         ],
       },
     ],
@@ -873,6 +901,12 @@ export function profileLabel(
   field: "goal" | "hurdle" | "tried",
   key: string,
 ): string {
-  const q = track.profile.find((p) => p.field === field);
-  return q?.options.find((o) => o.key === key)?.label ?? key;
+  // Search every question of that field (a field can have stage-specific
+  // variants, e.g. operating vs pre-launch hurdle/tried) for the option key.
+  for (const p of track.profile) {
+    if (p.field !== field) continue;
+    const opt = p.options.find((o) => o.key === key);
+    if (opt) return opt.label;
+  }
+  return key;
 }
