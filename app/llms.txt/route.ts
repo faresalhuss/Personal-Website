@@ -35,6 +35,7 @@ export async function GET() {
 - [Writing](${site.url}/writing): Essays on building small businesses
 - [Books](${site.url}/books): Reading lists and recommendations by theme, with a full reading history
 - [Reading list (free guide)](${site.url}/reading-list): The 15 books he's found most helpful building businesses, as a free PDF
+- [Momentum Score quiz](${site.url}/quiz): A 2-minute quiz that scores where you are with business and productivity and returns a tailored roadmap
 
 ## Writing
 ${essayLines}

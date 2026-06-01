@@ -13,7 +13,7 @@ const TITLE = `What's your ${SCORE_NAME}?`;
 export const metadata: Metadata = {
   title: TITLE,
   description:
-    "A 2-minute quiz that scores where you are with business and productivity, then points you to what'll actually help. Get your Momentum Score.",
+    "Take a 2-minute quiz to get your Momentum Score out of 10 and a roadmap tailored to where you are with business and productivity.",
   alternates: { canonical: "/quiz" },
   openGraph: {
     type: "website",

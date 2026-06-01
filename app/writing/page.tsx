@@ -7,7 +7,7 @@ import { getPosts } from "@/lib/writing";
 export const metadata: Metadata = {
   title: "Writing",
   description:
-    "Essays from Fa'res Husseini on building small businesses, what works, what doesn't, and what to take from the mistakes.",
+    "Essays on what I'm learning building small businesses: the wins, the losses, and what I'd do differently with hindsight.",
   alternates: { canonical: "/writing" },
   openGraph: {
     type: "website",

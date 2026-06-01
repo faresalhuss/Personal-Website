@@ -12,7 +12,7 @@ const TITLE = "The 15 Books That Shaped How I Build";
 export const metadata: Metadata = {
   title: TITLE,
   description:
-    "A free guide: the 15 books Fa'res Husseini has found most helpful building businesses from zero, with a short note on why each one matters.",
+    "A free PDF of the 15 books that shaped how I build, with a quick take on why each one earned a spot. The ones I'd hand a friend starting out.",
   alternates: { canonical: "/reading-list" },
   openGraph: {
     type: "website",

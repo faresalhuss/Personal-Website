@@ -21,14 +21,14 @@ import {
 
 export const metadata: Metadata = {
   title: "Books",
-  description: `What Fa'res is reading, his favorite books by theme, and a running reading history of ${totalBooksRead}+ finished books, with Amazon links.`,
+  description: `The books I recommend by theme, from business and sales to focus and money, plus my full reading history of ${totalBooksRead}+ finished books.`,
   alternates: { canonical: "/books" },
   openGraph: {
     type: "website",
     url: "/books",
     title: "Books — Fa'res Husseini",
     description:
-      "What I'm reading, my favorites by theme, and my full reading history.",
+      "The books I recommend by theme, plus my full reading history.",
     images: [
       { url: "/api/og?eyebrow=Books", width: 1200, height: 630, alt: "Books" },
     ],

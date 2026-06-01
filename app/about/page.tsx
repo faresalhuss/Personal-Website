@@ -13,14 +13,14 @@ import {
 export const metadata: Metadata = {
   title: "About",
   description:
-    "Fa'res Husseini's story: from Saudi Arabia to California to Atlanta, building a marketing firm and a pet-health startup, and documenting the journey as he goes.",
+    "How I went from making gaming videos in Saudi Arabia to running a marketing firm and co-founding a pet-health startup in Atlanta, with law school next.",
   alternates: { canonical: "/about" },
   openGraph: {
     type: "profile",
     url: "/about",
     title: "About — Fa'res Husseini",
     description:
-      "From Saudi Arabia to California to Atlanta: building a marketing firm and a pet-health startup, and documenting the journey.",
+      "From gaming videos in Saudi Arabia to a marketing firm and a pet-health startup in Atlanta, with law school next.",
     images: [
       { url: "/api/og", width: 1200, height: 630, alt: "Fa'res Husseini" },
     ],
