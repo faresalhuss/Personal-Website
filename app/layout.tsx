@@ -32,7 +32,7 @@ const anton = Anton({
 export const metadata: Metadata = {
   metadataBase: new URL(site.url),
   title: {
-    default: `${site.name} — entrepreneur, creator & writer`,
+    default: `${site.name} — Entrepreneur, Creator & Writer`,
     template: `%s — ${site.name}`,
   },
   description: site.description,
@@ -65,7 +65,7 @@ export const metadata: Metadata = {
     locale: site.locale,
     url: site.url,
     siteName: site.name,
-    title: `${site.name} — entrepreneur, creator & writer`,
+    title: `${site.name} — Entrepreneur, Creator & Writer`,
     description: site.description,
     images: [{ url: "/api/og", width: 1200, height: 630, alt: site.name }],
   },
@@ -73,7 +73,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     site: site.socials.x.handle,
     creator: site.socials.x.handle,
-    title: `${site.name} — entrepreneur, creator & writer`,
+    title: `${site.name} — Entrepreneur, Creator & Writer`,
     description: site.description,
     images: ["/api/og"],
   },

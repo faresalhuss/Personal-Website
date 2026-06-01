@@ -19,9 +19,9 @@ export function QuizCta() {
             What&rsquo;s your <span className="text-lime">{SCORE_NAME}</span>?
           </h2>
           <p className="mt-6 max-w-xl text-lg text-ink-dim">
-            Two honest minutes on where you are with business and productivity.
-            You&rsquo;ll get a score out of 10 and a roadmap tailored to your
-            situation. No fluff, no guru act.
+            A few quick questions on where you are with business and
+            productivity. You&rsquo;ll get a score out of 10 and a roadmap
+            tailored to your situation.
           </p>
           <Link href="/quiz" className="btn-lime mt-8">
             Take the quiz

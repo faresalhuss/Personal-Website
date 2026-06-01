@@ -164,10 +164,9 @@ export function Quiz() {
           <span className="text-lime">{SCORE_NAME}?</span>
         </h2>
         <p className="mt-6 max-w-xl text-lg text-ink-dim">
-          Answer a few honest questions about where you are with business and
+          Answer a few questions about where you are with business and
           productivity. You&rsquo;ll get a {SCORE_NAME}
-          {" "}out of 10 and a tailored roadmap for your situation. No fluff, no
-          guru act.
+          {" "}out of 10 and a roadmap tailored to your situation.
         </p>
         <button
           type="button"

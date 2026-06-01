@@ -11,8 +11,8 @@ export function Newsletter() {
           The weekly note
         </h2>
         <p className="mx-auto mt-5 max-w-xl text-lg text-night/80">
-          A short email every week about what I&rsquo;m learning building. No
-          guru act. No fluff. Just notes from the actual work.
+          A short email every week about what I&rsquo;m learning building. Just
+          notes from the actual work.
         </p>
         <div className="mt-9">
           <NewsletterForm />

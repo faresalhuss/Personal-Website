@@ -5,9 +5,9 @@
 export const site = {
   name: "Fa'res Husseini",
   url: "https://www.fareshusseini.com",
-  // ~150 chars for SEO. No em dashes (house style).
+  // ~150-160 chars for SEO. No em dashes (house style).
   description:
-    "I build small businesses, a marketing firm and a pet-health startup, and send a weekly email about what I learn building them.",
+    "I'm Fa'res Husseini, an entrepreneur building a marketing firm and a pet-health startup. I write a weekly email on what it actually takes to build from zero.",
   locale: "en_US",
   author: {
     name: "Fa'res Husseini",
