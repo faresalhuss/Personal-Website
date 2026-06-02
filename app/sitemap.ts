@@ -1,10 +1,11 @@
 import type { MetadataRoute } from "next";
 
+import { getIssues, issueUrl } from "@/lib/newsletter";
 import { site } from "@/lib/site";
 import { getPosts, postUrl } from "@/lib/writing";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const posts = await getPosts();
+  const [posts, issues] = await Promise.all([getPosts(), getIssues()]);
   const now = new Date();
 
   const staticRoutes: MetadataRoute.Sitemap = [
@@ -75,6 +76,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     });
   }
 
+  // Same for the newsletter archive — listed once it has at least one issue.
+  if (issues.length > 0) {
+    staticRoutes.push({
+      url: `${site.url}/newsletter`,
+      lastModified: new Date(issues[0]!.date),
+      changeFrequency: "weekly",
+      priority: 0.8,
+    });
+  }
+
   const essays: MetadataRoute.Sitemap = posts.map((post) => ({
     url: postUrl(post.slug),
     lastModified: new Date(post.date),
@@ -82,5 +93,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.6,
   }));
 
-  return [...staticRoutes, ...essays];
+  const newsletterIssues: MetadataRoute.Sitemap = issues.map((issue) => ({
+    url: `${site.url}${issueUrl(issue.slug)}`,
+    lastModified: new Date(issue.date),
+    changeFrequency: "yearly",
+    priority: 0.6,
+  }));
+
+  return [...staticRoutes, ...essays, ...newsletterIssues];
 }

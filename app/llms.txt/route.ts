@@ -1,16 +1,18 @@
+import { getIssues, issueUrl } from "@/lib/newsletter";
 import { site } from "@/lib/site";
-import { getPosts, postUrl } from "@/lib/writing";
 
-export const dynamic = "force-static";
+// Revalidate hourly so newly published issues show up.
+export const revalidate = 3600;
 
 export async function GET() {
-  const posts = await getPosts();
+  const issues = await getIssues();
 
-  const essayLines = posts.length
-    ? posts
-        .map((p) => `- [${p.title}](${postUrl(p.slug)}): ${p.description}`)
+  const issueLines = issues.length
+    ? issues
+        .slice(0, 20)
+        .map((i) => `- [${i.title}](${site.url}${issueUrl(i.slug)})`)
         .join("\n")
-    : "- No essays published yet.";
+    : "- No issues published yet.";
 
   const body = `# Fa'res Husseini
 
@@ -33,13 +35,14 @@ export async function GET() {
 - [Home](${site.url}): Who he is, what he's building, and the weekly newsletter
 - [About](${site.url}/about): Full first-person story, plus answers to common questions
 - [Writing](${site.url}/writing): Essays on building small businesses
+- [The Weekly Note](${site.url}/newsletter): Archive of his weekly newsletter on what it takes to build small businesses from zero
 - [Books](${site.url}/books): Reading lists and recommendations by theme, with a full reading history
 - [Reading list (free guide)](${site.url}/reading-list): The 15 books he's found most helpful building businesses, as a free PDF
 - [Momentum Score quiz](${site.url}/quiz): A 2-minute quiz that scores where you are with business and productivity and returns a tailored roadmap
 - [Contact](${site.url}/contact): Direct inboxes for press, podcast bookings, and business inquiries, plus a contact form
 
-## Writing
-${essayLines}
+## The Weekly Note (newsletter archive)
+${issueLines}
 
 ## Elsewhere
 - X (Twitter): ${site.socials.x.url}

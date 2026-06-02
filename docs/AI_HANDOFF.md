@@ -5,7 +5,7 @@ session this document plus git access, it should be able to pick up exactly wher
 the last one left off — without re-deriving the project's history, conventions, or
 the owner's preferences.
 
-**Last updated:** 2026-06-01
+**Last updated:** 2026-06-02
 **Maintenance rule:** updated deliberately, not after every prompt. When a change is
 significant enough to matter here (new feature/route, changed design direction, new
 convention, deploy/infra change, a preference learned), **ask the owner whether to
@@ -74,7 +74,8 @@ code-split via `next/dynamic` so it stays off the critical path) · next/font (A
 Geist + Geist Mono) · MDX (`next-mdx-remote/rsc` + remark-gfm, rehype-slug,
 rehype-autolink-headings, shiki) · next/og (OG images, favicon, apple-icon) · Vercel
 Analytics + Speed Insights (**gated behind cookie consent**, with custom conversion
-events) · **Resend** (contact-form email, free tier) · **pnpm** · ESLint
+events) · **Resend** (contact-form email, free tier) · **beehiiv RSS → newsletter
+archive** (fast-xml-parser + rehype-parse/rehype-sanitize) · **pnpm** · ESLint
 (sorted imports) + Prettier · Zod.
 
 Also in-repo (not shipped to the browser): **Python** asset generators using
@@ -85,14 +86,16 @@ See [`DEVELOPER_GUIDE.md`](DEVELOPER_GUIDE.md) for architecture/conventions and
 [`BRAND_GROWTH_STRATEGY.md`](BRAND_GROWTH_STRATEGY.md) for the growth/positioning plan.
 Key config/data: `lib/site.ts`, `lib/books.ts`, `lib/quiz.ts`,
 `lib/structured-data.ts`, `lib/consent.ts`, `lib/lead-magnet.ts`, `lib/subscribe.ts`,
-`lib/contact.ts`, `lib/rate-limit.ts`, `lib/analytics.ts`.
+`lib/contact.ts`, `lib/rate-limit.ts`, `lib/analytics.ts`, `lib/newsletter.ts`.
 
 ## 6. Current state of the site (routes & features)
 
 - **Homepage** (`app/(home)/`): hero (giant wordmark + a **scroll cue** that fades
   out on scroll and back in at the top, `_components/scroll-cue.tsx`), intro,
   ventures, a **quiz CTA** band, scroll-driven **timeline** (lime fill climbs the
-  rail; lazy-loaded), writing teaser, "weekly note" feature, newsletter section.
+  rail; lazy-loaded), a **"Recent issues" teaser** (`_components/latest-issues.tsx`,
+  the newsletter archive teaser — replaced the old `Writing` essay teaser, same card
+  style), "weekly note" feature, newsletter signup section.
 - **/about**: long-form bio as a `string[]` in `app/about/page.tsx`.
 - **/books**: curated lists + Amazon affiliate links; single source of truth
   `lib/books.ts`. Cover marquee, stats row, FTC disclosure, currently-reading,
@@ -183,8 +186,27 @@ Key config/data: `lib/site.ts`, `lib/books.ts`, `lib/quiz.ts`,
   indemnification; privacy covers Beehiiv/Vercel/Amazon, GDPR + CCPA/CPRA, cookies,
   COPPA, and a clause noting Fa'res does not sell data but cannot guarantee
   third-party providers' practices). **⚠️ Still need a licensed attorney's review.**
-- **/writing**: MDX pipeline + `[slug]` reader exist, but **no essays published yet**
-  and the nav link is hidden (`showWritingNav: false`). One `_example.mdx` template.
+- **/newsletter** — **The Weekly Note archive, auto-synced from beehiiv's RSS feed**
+  (free Launch plan; the feed's `<content:encoded>` carries full post HTML). `lib/
+  newsletter.ts` fetches `BEEHIIV_RSS_URL` (ISR `revalidate: 3600`), parses with
+  fast-xml-parser, and sanitizes the HTML through unified (rehype-parse →
+  custom `cleanTree` → rehype-sanitize → rehype-stringify): it **drops `<style>`/
+  `<script>`/comment subtrees** (sanitize otherwise *unwraps* them and leaks raw
+  CSS as text — important gotcha), strips inline styles/classes so the site's
+  `.essay-prose` styling applies, trims obvious email chrome (unsubscribe/
+  preferences/"read online"), and forces external links to open in a new tab.
+  Index `app/newsletter/page.tsx` (noindex while empty), reader
+  `app/newsletter/[slug]/page.tsx` (self-canonical, Article JSON-LD, dynamic OG,
+  `generateStaticParams` + `dynamicParams`). Slug = last path segment of the
+  beehiiv post URL. With no `BEEHIIV_RSS_URL` the archive renders empty + noindex,
+  so nothing breaks. **Chrome-trimming is heuristic and should be tuned against
+  Fa'res's real first issue** (sponsor blocks vary per publication).
+- **/writing**: the MDX essays pipeline + `[slug]` reader still exist for the rare
+  standalone essay, but are **deprioritized** — Fa'res publishes via the newsletter,
+  so the homepage section and nav now point at `/newsletter`, not `/writing`. Still
+  `noindex`/sitemap-excluded while empty; nav hidden (`showWritingNav: false`).
+  (Note: the Ventures section still has a "Writing → /writing" card — consider
+  repointing/removing it since standalone essays are rare.)
 - **Cookie consent**: `lib/consent.ts` (dependency-free store via
   `useSyncExternalStore`; persists to localStorage + a `fh_consent` cookie; 180-day,
   versioned) + `components/cookie-consent.tsx` (Accept / Reject / Preferences banner,
@@ -194,13 +216,17 @@ Key config/data: `lib/site.ts`, `lib/books.ts`, `lib/quiz.ts`,
   the `rl_grant` functional download cookie is exempt from consent.
 - **Header / nav** (`components/site-header.tsx`): fixed wordmark + hamburger toggle
   opening a full-screen slide-out menu (`inert` when closed). Nav links: About, What
-  I'm building, The journey, Writing, Books, Newsletter, **Contact**. Socials render as
-  **icon buttons** (`components/social-icons.tsx`: TikTok/Instagram/X glyphs inheriting
-  `currentColor`) in circular bordered chips matching the toggle. The overlay is
-  `overflow-y-auto` with a `min-h-full` centered nav so it never clips on short screens.
+  I'm building, The journey, **The Weekly Note (→ /newsletter)**, Books, **Contact**.
+  (The old "Writing"/"Newsletter" anchor items were replaced by the single
+  newsletter entry.) Socials render as **icon buttons** (`components/social-icons.tsx`:
+  TikTok/Instagram/X glyphs inheriting `currentColor`) in circular bordered chips
+  matching the toggle. Link size is fluid `clamp(2.25rem,8vh,5.5rem)` so the menu is
+  big-and-bold yet fits any viewport height without scrolling; the overlay is
+  `overflow-y-auto` + `overscroll-contain` and the root gets `overscroll-behavior:none`
+  while open (stops the page behind showing through on a fast/elastic scroll).
 - **Footer** (`components/site-footer.tsx`): grouped multi-column layout — brand
-  wordmark + tagline, **Explore** (About, Books, Reading List, Momentum Score Quiz,
-  +Writing when `showWritingNav`), **Connect** (TikTok, Instagram, X), **Site** (Contact,
+  wordmark + tagline, **Explore** (About, The Weekly Note, Books, Reading List,
+  Momentum Score Quiz), **Connect** (TikTok, Instagram, X), **Site** (Contact,
   Privacy, Terms, Accessibility, + a **Cookie settings** trigger), and a bottom bar with
   the `© {year}` line and the "Website by Clicks & Clients" credit. `CookieSettingsButton`
   takes an optional `className` so it matches the footer link style.
@@ -209,8 +235,9 @@ Key config/data: `lib/site.ts`, `lib/books.ts`, `lib/quiz.ts`,
   (`@fareshusseini`); `robots.ts` explicitly **allows AI crawlers** (GPTBot,
   OAI-SearchBot, ClaudeBot, anthropic-ai, PerplexityBot, Google-Extended, CCBot);
   `sitemap.ts` includes /contact + /accessibility + /terms + /privacy + /reading-list
-  (excludes noindex /welcome and /quiz/result; **/writing is omitted while it has no
-  posts** and is `noindex` until the first essay ships — both flip automatically);
+  (excludes noindex /welcome and /quiz/result; **/writing and /newsletter are omitted
+  while empty** and `noindex` until they have content — including per-issue newsletter
+  URLs once synced — all flip automatically);
   rich `llms.txt`; `manifest.ts`; generated favicon/apple-icon. Canonical host = **www**.
   The OG route (`app/api/og/route.tsx`) honors an `eyebrow` param and a `title` (custom
   card) — used by the quiz-result share image.
@@ -252,6 +279,7 @@ Key config/data: `lib/site.ts`, `lib/books.ts`, `lib/quiz.ts`,
 | `BEEHIIV_PUBLICATION_ID` | ✅ Production | Beehiiv publication (v2 id). |
 | `DOWNLOAD_SIGNING_SECRET` | ✅ Production | HMAC secret for the reading-list download grant. Dev falls back to an insecure constant. Generate with `openssl rand -base64 32`. |
 | `RESEND_API_KEY` | ✅ Production | Contact-form email via Resend. Without it the form falls back to a local stub. Domain `contact.fareshusseini.com` is verified in Resend. |
+| `BEEHIIV_RSS_URL` | ⬜ **set this** | Public beehiiv RSS feed (Settings → RSS → New RSS Feed) powering the `/newsletter` archive + homepage teaser. Not a secret. Empty = archive renders empty + noindex. Env changes need a redeploy to take effect. |
 | `CONTACT_FROM_EMAIL` | ✅ Production | Contact-form From address. Defaults in code to `noreply@contact.fareshusseini.com`; must be on a Resend-verified domain. |
 | `YOUTUBE_API_KEY` / `YOUTUBE_CHANNEL_ID` | ❌ (unused yet) | For a future `<LatestVideo />`. |
 
@@ -294,6 +322,12 @@ Key config/data: `lib/site.ts`, `lib/books.ts`, `lib/quiz.ts`,
 ## 11. Backlog / not yet done
 
 - **⚖️ Have a lawyer review `/terms` and `/privacy`.**
+- **Newsletter archive go-live:** set `BEEHIIV_RSS_URL` in Vercel (beehiiv →
+  Settings → RSS → New RSS Feed), redeploy, publish the first issue, then **tune the
+  `cleanTree` chrome-trimming in `lib/newsletter.ts` against the real issue** (sponsor/
+  footer blocks vary per publication). Verify a synced issue renders cleanly before
+  relying on it. Optionally configure next/image `remotePatterns` for the beehiiv image
+  CDN (teaser currently uses a plain `<img>`).
 - **Enable Web Analytics in the Vercel dashboard** (Project → Analytics) so pageviews
   and the custom conversion events actually record in production.
 - **Confirm the contact inboxes receive mail.** The form delivers to `press@`,

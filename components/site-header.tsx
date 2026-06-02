@@ -14,9 +14,8 @@ const navLinks = [
   { label: "About", href: "/about" },
   { label: "What I'm building", href: "/#work" },
   { label: "The journey", href: "/#journey" },
-  { label: "Writing", href: "/#writing" },
+  { label: "The Weekly Note", href: "/newsletter" },
   { label: "Books", href: "/books" },
-  { label: "Newsletter", href: "/#newsletter" },
   { label: "Contact", href: "/contact" },
 ];
 
