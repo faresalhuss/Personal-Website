@@ -27,15 +27,9 @@ const ventures: Venture[] = [
   {
     title: "The Weekly\nNote",
     blurb:
-      "A short email every week on what I'm learning building.",
-    href: "/#newsletter",
+      "A short email every week on what I'm learning building. Read past issues or subscribe.",
+    href: "/newsletter",
     tag: "Newsletter",
-  },
-  {
-    title: "Writing",
-    blurb: "Essays on the wins, the losses, and what I'd do differently.",
-    href: "/writing",
-    tag: "Essays",
   },
 ];
 
