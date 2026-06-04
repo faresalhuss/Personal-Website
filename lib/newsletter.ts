@@ -103,9 +103,10 @@ function nodeText(node: HastNode): string {
   return (node.children ?? []).map(nodeText).join("");
 }
 
-const CHROME_LINK = /unsubscribe|\/manage|email[-\s]?preferences|update your/i;
+const CHROME_LINK =
+  /unsubscribe|\/manage|email[-\s]?preferences|update your|beehiiv\.com\/?$|\?utm_source=.*beehiiv/i;
 const CHROME_TEXT =
-  /unsubscribe|update your email preferences|read online|view in browser|©\s|all rights reserved/i;
+  /unsubscribe|update your email preferences|read online|view in browser|powered by beehiiv|©\s|all rights reserved/i;
 // Subtrees to delete entirely. sanitize() "unwraps" disallowed elements
 // (keeping their text children), so a <style>/<script> block would otherwise
 // leak its raw CSS/JS as visible text — remove the whole subtree here first.
