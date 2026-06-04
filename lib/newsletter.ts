@@ -26,8 +26,6 @@ export type Issue = {
   excerpt: string;
   /** Real image pulled from the feed, if any (used for the social OG card). */
   image?: string;
-  /** Always-present card thumbnail: the feed image, or a generated OG card. */
-  thumbnail: string;
   readingTimeMinutes: number;
   /** Sanitized, restyle-ready HTML body. */
   html: string;
@@ -68,12 +66,6 @@ function decodeEntities(input: string): string {
   });
 }
 
-/** Generated, on-brand fallback thumbnail (reuses the OG image route). */
-function generatedThumbnail(title: string): string {
-  return `/api/og?eyebrow=${encodeURIComponent(
-    "The Weekly Note",
-  )}&title=${encodeURIComponent(title)}`;
-}
 
 /** Pull CDATA / #text / nested text out of a fast-xml-parser node. */
 function pickText(v: unknown): string {
@@ -307,7 +299,6 @@ async function fetchIssues(): Promise<Issue[]> {
         date: new Date(pickText(item.pubDate) || Date.now()).toISOString(),
         excerpt: base + (text.length > 200 ? "…" : ""),
         image,
-        thumbnail: image ?? generatedThumbnail(title),
         readingTimeMinutes: Math.max(1, Math.round(readingTime(text).minutes)),
         html,
       };
