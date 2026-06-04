@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { JsonLd } from "@/components/json-ld";
+import { ReadingProgress } from "@/components/reading-progress";
 import { Section } from "@/components/section";
 import { getIssue, getIssues, issueUrl } from "@/lib/newsletter";
 import { site } from "@/lib/site";
@@ -84,6 +85,7 @@ export default async function IssuePage({ params }: { params: Params }) {
 
   return (
     <article className="pt-32 pb-16 sm:pt-40">
+      <ReadingProgress />
       <JsonLd data={websiteSchema()} />
       <JsonLd data={personSchema()} />
       <JsonLd
@@ -115,7 +117,7 @@ export default async function IssuePage({ params }: { params: Params }) {
             {formatDate(issue.date)} &middot; {issue.readingTimeMinutes} min
             read
           </p>
-          <h1 className="mt-4 font-display text-5xl leading-[1.02] text-ink normal-case sm:text-7xl">
+          <h1 className="mt-4 text-balance font-display text-5xl leading-[1.02] text-ink normal-case sm:text-7xl">
             {issue.title}
           </h1>
         </header>

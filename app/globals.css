@@ -269,6 +269,8 @@
   font-size: var(--text-lg);
   line-height: 1.8;
   color: var(--color-ink-dim);
+  /* Avoid typographic orphans/widows (a lone word on its own line). */
+  text-wrap: pretty;
 }
 .essay-prose > * + * {
   margin-top: 1.4em;

@@ -102,7 +102,7 @@ export default async function NewsletterIndex() {
                   {formatDate(issue.date)} &middot; {issue.readingTimeMinutes}{" "}
                   min read
                 </p>
-                <h2 className="mt-2 font-display text-3xl text-ink normal-case transition-colors group-hover:text-lime">
+                <h2 className="mt-2 text-balance font-display text-3xl text-ink normal-case transition-colors group-hover:text-lime">
                   {issue.title}
                 </h2>
                 <p className="mt-2 text-lg text-ink-dim">{issue.excerpt}</p>

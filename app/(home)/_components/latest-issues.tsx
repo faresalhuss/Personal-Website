@@ -1,6 +1,5 @@
 import Link from "next/link";
 
-import { Placeholder } from "@/components/placeholder";
 import { getIssues, issueUrl } from "@/lib/newsletter";
 
 function formatDate(iso: string): string {
@@ -56,27 +55,19 @@ export async function LatestIssues() {
                 href={issueUrl(issue.slug)}
                 className="group flex flex-col overflow-hidden rounded-[var(--radius-card)] border border-line bg-night transition-colors hover:border-lime/60"
               >
-                {issue.image ? (
-                  // eslint-disable-next-line @next/next/no-img-element -- remote beehiiv CDN image, not worth next/image remotePatterns config
-                  <img
-                    src={issue.image}
-                    alt=""
-                    loading="lazy"
-                    className="aspect-[16/9] w-full border-b border-line object-cover"
-                  />
-                ) : (
-                  <Placeholder
-                    label="The Weekly Note"
-                    ratioClass="aspect-[16/9]"
-                    className="rounded-none border-0 border-b border-line"
-                  />
-                )}
+                {/* eslint-disable-next-line @next/next/no-img-element -- thumbnail is either a remote beehiiv image or our own /api/og PNG; next/image isn't worth the remotePatterns config */}
+                <img
+                  src={issue.thumbnail}
+                  alt=""
+                  loading="lazy"
+                  className="aspect-[16/9] w-full border-b border-line object-cover"
+                />
                 <div className="flex flex-1 flex-col p-6">
                   <p className="text-xs tracking-widest text-ink-faint uppercase">
                     {formatDate(issue.date)} &middot; {issue.readingTimeMinutes}{" "}
                     min
                   </p>
-                  <h3 className="mt-3 font-display text-2xl normal-case transition-colors group-hover:text-lime">
+                  <h3 className="mt-3 text-balance font-display text-2xl normal-case transition-colors group-hover:text-lime">
                     {issue.title}
                   </h3>
                   <p className="mt-2 line-clamp-3 text-sm text-ink-dim">

@@ -24,11 +24,56 @@ export type Issue = {
   externalUrl: string;
   date: string;
   excerpt: string;
+  /** Real image pulled from the feed, if any (used for the social OG card). */
   image?: string;
+  /** Always-present card thumbnail: the feed image, or a generated OG card. */
+  thumbnail: string;
   readingTimeMinutes: number;
   /** Sanitized, restyle-ready HTML body. */
   html: string;
 };
+
+const NAMED_ENTITIES: Record<string, string> = {
+  amp: "&",
+  lt: "<",
+  gt: ">",
+  quot: '"',
+  apos: "'",
+  nbsp: " ",
+  mdash: "—",
+  ndash: "–",
+  hellip: "…",
+  rsquo: "’",
+  lsquo: "‘",
+  rdquo: "”",
+  ldquo: "“",
+};
+
+/**
+ * Decode HTML entities in plain-text fields (title, excerpt). beehiiv wraps
+ * these in CDATA, so a compliant XML parser leaves `&#39;` etc. literal — React
+ * would then render the raw entity. The body HTML is decoded by rehype-parse,
+ * so this is only for the strings we render directly.
+ */
+function decodeEntities(input: string): string {
+  return input.replace(/&(#x?[0-9a-f]+|[a-z][a-z0-9]*);/gi, (m, code) => {
+    if (code[0] === "#") {
+      const n =
+        code[1] === "x" || code[1] === "X"
+          ? parseInt(code.slice(2), 16)
+          : parseInt(code.slice(1), 10);
+      return Number.isFinite(n) ? String.fromCodePoint(n) : m;
+    }
+    return NAMED_ENTITIES[code.toLowerCase()] ?? m;
+  });
+}
+
+/** Generated, on-brand fallback thumbnail (reuses the OG image route). */
+function generatedThumbnail(title: string): string {
+  return `/api/og?eyebrow=${encodeURIComponent(
+    "The Weekly Note",
+  )}&title=${encodeURIComponent(title)}`;
+}
 
 /** Pull CDATA / #text / nested text out of a fast-xml-parser node. */
 function pickText(v: unknown): string {
@@ -44,9 +89,7 @@ function pickText(v: unknown): string {
 }
 
 function stripTags(html: string): string {
-  return html
-    .replace(/<[^>]+>/g, " ")
-    .replace(/&[a-z]+;/gi, " ")
+  return decodeEntities(html.replace(/<[^>]+>/g, " "))
     .replace(/\s+/g, " ")
     .trim();
 }
@@ -122,55 +165,66 @@ const DROP_TAGS = new Set([
 ]);
 
 /**
- * Light, conservative trim of beehiiv email chrome + hardening of links:
- * removes <style>/<script>/comment subtrees, drops blocks that are clearly
- * unsubscribe/preferences/"read online" footer cruft, and forces external
- * links to open safely in a new tab.
+ * Cleans beehiiv's email HTML into flat, semantic prose:
+ * - removes <style>/<script>/comment subtrees (sanitize would otherwise unwrap
+ *   them and leak raw CSS as text),
+ * - drops obvious email chrome (unsubscribe/preferences/"read online"/
+ *   "powered by beehiiv"),
+ * - **unwraps layout `<div>`s** so paragraphs/headings become direct children of
+ *   `.essay-prose` and pick up its inter-block spacing (beehiiv nests everything
+ *   in wrapper divs, which otherwise renders cramped),
+ * - forces external links to open safely in a new tab.
  */
+function cleanChildren(nodes: HastNode[]): HastNode[] {
+  const out: HastNode[] = [];
+  for (const node of nodes) {
+    // Strip HTML comments (email templates are full of conditional ones).
+    if (node.type === "comment") continue;
+    if (node.type !== "element") {
+      out.push(node);
+      continue;
+    }
+    // Delete script/style/etc. subtrees outright (text and all).
+    if (node.tagName && DROP_TAGS.has(node.tagName)) continue;
+
+    const href =
+      typeof node.properties?.href === "string" ? node.properties.href : "";
+    const text = nodeText(node);
+    if (CHROME_LINK.test(href)) continue;
+    if (
+      text.length < 120 &&
+      CHROME_TEXT.test(text) &&
+      (node.tagName === "p" ||
+        node.tagName === "a" ||
+        node.tagName === "div" ||
+        node.tagName === "span")
+    ) {
+      continue;
+    }
+
+    // Harden external links.
+    if (node.tagName === "a" && /^https?:/i.test(href)) {
+      node.properties = {
+        ...node.properties,
+        target: "_blank",
+        rel: "noopener noreferrer",
+      };
+    }
+
+    // Recurse first, then unwrap pure layout wrappers (lift their children).
+    node.children = cleanChildren(node.children ?? []);
+    if (node.tagName === "div") {
+      out.push(...node.children);
+    } else {
+      out.push(node);
+    }
+  }
+  return out;
+}
+
 function cleanTree() {
   return (tree: HastNode) => {
-    const walk = (node: HastNode) => {
-      if (!node.children) return;
-      node.children = node.children.filter((child) => {
-        // Strip HTML comments (email templates are full of conditional ones).
-        if (child.type === "comment") return false;
-        if (child.type !== "element") return true;
-        // Delete script/style/etc. subtrees outright (text and all).
-        if (child.tagName && DROP_TAGS.has(child.tagName)) return false;
-        const href =
-          typeof child.properties?.href === "string"
-            ? child.properties.href
-            : "";
-        const text = nodeText(child);
-        // Drop anchors / small blocks that are clearly email chrome.
-        if (CHROME_LINK.test(href)) return false;
-        if (
-          text.length < 120 &&
-          CHROME_TEXT.test(text) &&
-          (child.tagName === "p" ||
-            child.tagName === "a" ||
-            child.tagName === "div" ||
-            child.tagName === "span")
-        ) {
-          return false;
-        }
-        return true;
-      });
-      for (const child of node.children) {
-        if (child.type === "element") {
-          if (
-            child.tagName === "a" &&
-            typeof child.properties?.href === "string" &&
-            /^https?:/i.test(child.properties.href)
-          ) {
-            child.properties.target = "_blank";
-            child.properties.rel = "noopener noreferrer";
-          }
-          walk(child);
-        }
-      }
-    };
-    walk(tree);
+    tree.children = cleanChildren(tree.children ?? []);
   };
 }
 
@@ -234,7 +288,7 @@ async function fetchIssues(): Promise<Issue[]> {
 
   const issues = await Promise.all(
     items.map(async (item): Promise<Issue | null> => {
-      const title = pickText(item.title).trim();
+      const title = decodeEntities(pickText(item.title).trim());
       const link = pickText(item.link).trim();
       const rawHtml = pickText(item["content:encoded"]);
       if (!title || !rawHtml) return null;
@@ -243,16 +297,17 @@ async function fetchIssues(): Promise<Issue[]> {
       const text = stripTags(html);
       const enclosure = item.enclosure as { "@_url"?: string } | undefined;
       const descriptionText = stripTags(pickText(item.description));
+      const image = enclosure?.["@_url"] ?? firstImage(rawHtml);
+      const base = (descriptionText || text).slice(0, 200).trim();
 
       return {
         title,
         slug: slugFromLink(link, title),
         externalUrl: link,
         date: new Date(pickText(item.pubDate) || Date.now()).toISOString(),
-        excerpt:
-          (descriptionText || text).slice(0, 200).trim() +
-          (text.length > 200 ? "…" : ""),
-        image: enclosure?.["@_url"] ?? firstImage(rawHtml),
+        excerpt: base + (text.length > 200 ? "…" : ""),
+        image,
+        thumbnail: image ?? generatedThumbnail(title),
         readingTimeMinutes: Math.max(1, Math.round(readingTime(text).minutes)),
         html,
       };
